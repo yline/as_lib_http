@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/LibHttp/LibHttp.iml" filepath="$PROJECT_DIR$/LibHttp/LibHttp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LibHttpDemo/LibHttpDemo.iml" filepath="$PROJECT_DIR$/LibHttpDemo/LibHttpDemo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/_LibHttp.iml" filepath="$PROJECT_DIR$/_LibHttp.iml" />
+    </modules>
+  </component>
+</project>
