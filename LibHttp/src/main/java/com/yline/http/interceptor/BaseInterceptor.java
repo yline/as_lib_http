@@ -4,7 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import com.yline.http.XHttpConstant;
+import com.yline.http.XHttpConfig;
 import com.yline.http.util.LogUtil;
 
 import java.util.Arrays;
@@ -75,6 +75,6 @@ public abstract class BaseInterceptor implements Interceptor
 
 	protected boolean isDebug()
 	{
-		return XHttpConstant.isInterceptorDebug();
+		return XHttpConfig.getInstance().isInterceptorDebug();
 	}
 }

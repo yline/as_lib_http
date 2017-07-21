@@ -1,12 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.0"
 
     defaultConfig {
         minSdkVersion 11
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
 
@@ -42,10 +42,10 @@ ext {
 
     libraryDescription = '基于OKHttp3进行封装，添加拦截器实现缓存以及封装Gson'
 
-    siteUrl = 'https://github.com/yline/as_lib_place '
-    gitUrl = 'https://github.com/yline/as_lib_place.git'
+    siteUrl = 'https://github.com/yline/as_lib_http'
+    gitUrl = 'https://github.com/yline/as_lib_http.git'
 
-    libraryVersion = '2.0.6'
+    libraryVersion = '2.0.8'
 
     developerId = 'yline'
     developerName = 'yline'

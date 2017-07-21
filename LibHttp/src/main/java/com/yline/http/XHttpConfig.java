@@ -9,20 +9,6 @@ import java.io.File;
 
 public class XHttpConfig
 {
-	private XHttpConfig()
-	{
-	}
-
-	public static XHttpConfig getInstance()
-	{
-		return HttpConfigHolder.sInstance;
-	}
-
-	private static class HttpConfigHolder
-	{
-		private static XHttpConfig sInstance = new XHttpConfig();
-	}
-
 	private Context context;
 
 	private File cacheDir;
@@ -32,6 +18,15 @@ public class XHttpConfig
 	private boolean isUtilLog = true;
 
 	private boolean isUtilLogLocation = true;
+
+	private XHttpConfig()
+	{
+	}
+
+	public static XHttpConfig getInstance()
+	{
+		return HttpConfigHolder.sInstance;
+	}
 
 	/* 这个类，必须被初始化；否则程序出错 */
 	public void init(Context context)
@@ -73,4 +68,21 @@ public class XHttpConfig
 	{
 		return context;
 	}
+
+	public boolean isInterceptorDebug()
+	{
+		return true;
+	}
+
+	public boolean isCacheDebug()
+	{
+		return true;
+	}
+
+	private static class HttpConfigHolder
+	{
+		private static XHttpConfig sInstance = new XHttpConfig();
+	}
+
+
 }

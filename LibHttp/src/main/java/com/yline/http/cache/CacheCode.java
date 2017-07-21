@@ -2,7 +2,7 @@ package com.yline.http.cache;
 
 import android.text.TextUtils;
 
-import com.yline.http.XHttpConstant;
+import com.yline.http.XHttpConfig;
 import com.yline.http.util.LogUtil;
 
 import java.io.ByteArrayOutputStream;
@@ -23,13 +23,13 @@ import okio.ByteString;
 
 class CacheCode
 {
-	private static final int VERSION = 201105;
-
 	public static final int ENTRY_METADATA = 0;
 
 	public static final int ENTRY_BODY = 1;
 
 	public static final int ENTRY_COUNT = 2;
+
+	private static final int VERSION = 201105;
 
 	final DiskLruCache diskLruCache;
 
@@ -60,7 +60,8 @@ class CacheCode
 			{
 				return null;
 			}
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			return null;
 		}
@@ -68,7 +69,8 @@ class CacheCode
 		try
 		{
 			textCacheEntry = new CacheEntry(snapshot.getSource(ENTRY_METADATA));
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			Util.closeQuietly(snapshot);
 			return null;
@@ -112,7 +114,8 @@ class CacheCode
 				return;
 			}
 			textCacheEntry.writeTo(editor, response);
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			abortQuietly(editor);
 			LogUtil.e("textCache put IOException", e);
@@ -129,7 +132,8 @@ class CacheCode
 			{
 				editor.abort();
 			}
-		} catch (IOException ignored)
+		}
+		catch (IOException ignored)
 		{
 		}
 	}
@@ -196,6 +200,6 @@ class CacheCode
 
 	private boolean isDebug()
 	{
-		return XHttpConstant.isCacheDebug();
+		return XHttpConfig.getInstance().isCacheDebug();
 	}
 }

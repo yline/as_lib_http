@@ -1,72 +1,42 @@
 package com.yline.http;
 
-import com.google.gson.Gson;
-import com.yline.http.helper.IHttpResponse;
+import com.google.gson.JsonParseException;
 import com.yline.http.util.LogUtil;
 
-import org.json.JSONObject;
+import org.json.JSONException;
 
 /**
  * 配置每次的请求参数
- *
- * @param <Result>
  */
-public abstract class XHttpAdapter<Result> implements IHttpResponse<Result>
+public abstract class XHttpAdapter<Result>
 {
+	// 默认成功的Code
 	public static final int REQUEST_SUCCESS_CODE = 0;
 
 	/**
-	 * 默认规则下，数据的回调
+	 * 经过了Json解析，回调数据
 	 *
 	 * @param result
 	 */
 	public abstract void onSuccess(Result result);
 
 	/**
-	 * @param code    code码，非零情况下
-	 * @param content code码对应的字符串
+	 *
+	 * @param code 不为0，若为Integer.MIN_VALUE，则没有经过code的解析
+	 * @param data 对应的，数据
+	 * @throws JSONException
+	 * @throws JsonParseException
 	 */
-	public void onSuccess(int code, String content)
+	public void onSuccess(int code, String data) throws JSONException, JsonParseException
 	{
 
 	}
 
-	@Override
-	public void onSuccess(String jsonData, boolean isHandle, Class<Result> clazz) throws Exception
+	public void onFailure(Exception ex, boolean isDebug)
 	{
-		if (isHandle) // 进行code处理一次
-		{
-			JSONObject jsonObject = new JSONObject(jsonData);
-
-			int code = jsonObject.getInt("code");
-			String jsonContent = jsonObject.getString("data");
-			if (null == clazz || code != REQUEST_SUCCESS_CODE || (clazz == String.class))
-			{
-				onSuccess(code, jsonContent);
-			}
-			else
-			{
-				Result result = new Gson().fromJson(jsonContent, clazz);
-				onSuccess(result);
-			}
-		}
-		else
-		{
-			onSuccess(Integer.MIN_VALUE, jsonData);
-		}
-	}
-
-	@Override
-	public void onFailure(Exception ex)
-	{
-		if (isDebug())
+		if (isDebug)
 		{
 			LogUtil.e("onFailure net exception happened", ex);
 		}
-	}
-
-	public boolean isDebug()
-	{
-		return XHttpConstant.isDefaultDebug();
 	}
 }

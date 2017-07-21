@@ -121,5 +121,6 @@ public class MainActivity extends BaseTestActivity
 				}, new WNewsMultiplexBean(0, 3));
 			}
 		});
+
 	}
 }
