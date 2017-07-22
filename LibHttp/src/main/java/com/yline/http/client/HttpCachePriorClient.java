@@ -1,14 +1,22 @@
-package com.yline.http.helper;
+package com.yline.http.client;
 
-import com.yline.http.interceptor.CacheAndNetInterceptor;
+import com.yline.http.interceptor.CachePriorInterceptor;
 
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 
-public class HttpCacheAndNetClient
+/**
+ * 缓存优先的策略
+ * 有缓存 -- 读取缓存
+ * 无缓存 -- 请求网络
+ *
+ * @author yline 2017/7/22 -- 15:31
+ * @version 1.0.0
+ */
+public class HttpCachePriorClient
 {
-	private HttpCacheAndNetClient()
+	private HttpCachePriorClient()
 	{
 	}
 
@@ -26,8 +34,8 @@ public class HttpCacheAndNetClient
 			// 设置超时
 			builder.connectTimeout(10, TimeUnit.SECONDS).readTimeout(10, TimeUnit.SECONDS).writeTimeout(10, TimeUnit.SECONDS);
 
-			// 添加拦截器；默认走网络，如果没有网，则走缓存
-			builder.addInterceptor(new CacheAndNetInterceptor());
+			// 添加拦截器；缓存优先
+			builder.addInterceptor(new CachePriorInterceptor());
 
 			return builder.build();
 		}

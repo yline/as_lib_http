@@ -23,44 +23,34 @@ import java.util.Locale;
  */
 public final class LogUtil
 {
-	/**
-	 * tag 默认格式
-	 */
-	private static final String TAG_DEFAULT = "xxx->";
-
-	/**
-	 * tag 定位  默认格式
-	 */
-	private static final String TAG_DEFAULT_LOCATION = TAG_DEFAULT + "%s.%s(L:%d): ";
-
-	/**
-	 * msg 默认格式
-	 */
-	private static final String MSG_DEFAULT = "LogUtil -> %s";
-
-	/**
-	 * log trace 抛出的位置,两层,即:使用该工具的当前位置,作为默认
-	 */
-	private static final int LOG_LOCATION_NOW = 2;
-
-	/**
-	 * log trace 抛出的位置,两层,即:使用该工具的子类的位置
-	 */
+	/* log trace 抛出的位置,两层,即:使用该工具的子类的位置 */
 	public static final int LOG_LOCATION_PARENT = 3;
 
-	/**
-	 * log 开关
-	 */
-	private static boolean isUtilLog;
+	/* tag 默认格式 */
+	private static final String TAG_DEFAULT = "xxx->";
 
-	/**
-	 * log 是否定位
-	 */
-	private static boolean isUtilLogLocation;
+	/* tag 定位  默认格式 */
+	private static final String TAG_DEFAULT_LOCATION = TAG_DEFAULT + "%s.%s(L:%d): ";
 
-	public static void init(boolean isUtilLog, boolean isUtilLogLocation)
+	/* msg 默认格式 */
+	private static final String MSG_DEFAULT = "LogUtil -> %s";
+
+	/* log trace 抛出的位置,两层,即:使用该工具的当前位置,作为默认 */
+	private static final int LOG_LOCATION_NOW = 2;
+
+	/* log 开关 */
+	private static boolean isUtilLog = true;
+
+	/* log 是否定位 */
+	private static boolean isUtilLogLocation = true;
+
+	public static void setUtilLog(boolean isUtilLog)
 	{
 		LogUtil.isUtilLog = isUtilLog;
+	}
+
+	public static void setUtilLogLocation(boolean isUtilLogLocation)
+	{
 		LogUtil.isUtilLogLocation = isUtilLogLocation;
 	}
 

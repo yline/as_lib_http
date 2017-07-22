@@ -1,21 +1,22 @@
-package com.yline.http.helper;
+package com.yline.http.client;
 
-import com.yline.http.interceptor.NetThanCacheInterceptor;
+import com.yline.http.interceptor.NetPriorInterceptor;
 
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 
 /**
- * 提供,统一处理Http的Client;
- * 这个用来处理文字和不被清除的内存(排除图片+视频)
+ * 按照 网络优先的 规则
+ * 有网络 -- 读取网络
+ * 无网络 -- 读取缓存 -- 无缓存 -- 返回失败
  *
  * @author yline 2017/2/28 -- 17:29
  * @version 1.0.0
  */
-public class HttpNetThanCacheClient extends OkHttpClient
+public class HttpNetPriorClient extends OkHttpClient
 {
-	private HttpNetThanCacheClient()
+	private HttpNetPriorClient()
 	{
 	}
 	
@@ -34,7 +35,7 @@ public class HttpNetThanCacheClient extends OkHttpClient
 			builder.connectTimeout(10, TimeUnit.SECONDS).readTimeout(10, TimeUnit.SECONDS).writeTimeout(10, TimeUnit.SECONDS);
 
 			// 添加拦截器；默认走网络，如果没有网，则走缓存
-			builder.addInterceptor(new NetThanCacheInterceptor());
+			builder.addInterceptor(new NetPriorInterceptor());
 
 			return builder.build();
 		}

@@ -31,6 +31,12 @@ import okio.ForwardingSource;
 import okio.Okio;
 import okio.Source;
 
+/**
+ * Okio 储存的 规范类
+ *
+ * @author yline 2017/7/22 -- 13:37
+ * @version 1.0.0
+ */
 public class CacheEntry
 {
 	private static final String SENT_MILLIS = "OKHttp3-Sent-Millis";
@@ -135,7 +141,8 @@ public class CacheEntry
 			{
 				this.handshake = null;
 			}
-		} finally
+		}
+		finally
 		{
 			in.close();
 		}
@@ -161,33 +168,27 @@ public class CacheEntry
 		Request cacheRequest = cacheRequestBuilder.build();
 
 		Headers responseHeader = map2Header(textCacheMap);
-		return new Response.Builder()
-				.request(cacheRequest)
-				.protocol(protocol)
-				.code(protocolCode)
-				.message(protocolMessage)
-				.headers(responseHeader)
-				.body(new CacheResponseBody(snapshot, contentType, contentLength))
-				.handshake(handshake)
-				.sentRequestAtMillis(sentRequestMillis)
-				.receivedResponseAtMillis(receivedResponseMillis)
-				.build();
+		return new Response.Builder().request(cacheRequest).protocol(protocol).code(protocolCode).message(protocolMessage).headers(responseHeader).body(new CacheResponseBody(snapshot, contentType, contentLength)).handshake(handshake).sentRequestAtMillis(sentRequestMillis).receivedResponseAtMillis(receivedResponseMillis).build();
 	}
 
 	public boolean matches(Request request, Response response)
 	{
-		return url.equals(request.url().toString())
-				&& requestMethod.equals(request.method())
-				&& HttpHeaders.varyMatches(response, request.headers(), request);
+		return url.equals(request.url().toString()) && requestMethod.equals(request.method()) && HttpHeaders.varyMatches(response, request.headers(), request);
 	}
 
-	public void writeTo(DiskLruCache.Editor editor, Response response) throws IOException
+	/**
+	 * @param editor
+	 * @param inputStream 输入流
+	 * @throws IOException
+	 */
+	public void writeTo(DiskLruCache.Editor editor, InputStream inputStream) throws IOException
 	{
 		try
 		{
 			writeToMetadata(editor);
-			writeToMetaBody(editor, response);
-		} finally
+			writeToMetaBody(editor, inputStream);
+		}
+		finally
 		{
 			editor.commit();
 		}
@@ -199,28 +200,24 @@ public class CacheEntry
 		BufferedSink bufferedSink = null;
 		try
 		{
-			bufferedSink = Okio.buffer(editor.newSink(CacheCode.ENTRY_METADATA));
+			bufferedSink = Okio.buffer(editor.newSink(OkioCache.ENTRY_METADATA));
 
 			bufferedSink.writeUtf8(url).writeByte('\n');
 			bufferedSink.writeUtf8(requestMethod).writeByte('\n');
 			bufferedSink.writeDecimalLong(varyCacheMap.size()).writeByte('\n');
 			for (String key : varyCacheMap.keySet())
 			{
-				bufferedSink.writeUtf8(key).writeUtf8(": ")
-						.writeUtf8(varyCacheMap.get(key)).writeByte('\n');
+				bufferedSink.writeUtf8(key).writeUtf8(": ").writeUtf8(varyCacheMap.get(key)).writeByte('\n');
 			}
 
 			bufferedSink.writeUtf8(new StatusLine(protocol, protocolCode, protocolMessage).toString()).writeByte('\n');
 			bufferedSink.writeDecimalLong(textCacheMap.size() + 2).writeByte('\n');
 			for (String key : textCacheMap.keySet())
 			{
-				bufferedSink.writeUtf8(key).writeUtf8(": ")
-						.writeUtf8(textCacheMap.get(key)).writeByte('\n');
+				bufferedSink.writeUtf8(key).writeUtf8(": ").writeUtf8(textCacheMap.get(key)).writeByte('\n');
 			}
-			bufferedSink.writeUtf8(SENT_MILLIS).writeUtf8(": ")
-					.writeDecimalLong(sentRequestMillis).writeByte('\n');
-			bufferedSink.writeUtf8(SENT_MILLIS).writeUtf8(": ")
-					.writeDecimalLong(sentRequestMillis).writeByte('\n');
+			bufferedSink.writeUtf8(SENT_MILLIS).writeUtf8(": ").writeDecimalLong(sentRequestMillis).writeByte('\n');
+			bufferedSink.writeUtf8(SENT_MILLIS).writeUtf8(": ").writeDecimalLong(sentRequestMillis).writeByte('\n');
 
 			if (isHttps())
 			{
@@ -234,7 +231,8 @@ public class CacheEntry
 					bufferedSink.writeUtf8(handshake.tlsVersion().javaName()).writeByte('\n');
 				}
 			}
-		} finally
+		}
+		finally
 		{
 			if (null != bufferedSink)
 			{
@@ -244,20 +242,20 @@ public class CacheEntry
 	}
 
 	// 写入第二个文件
-	private void writeToMetaBody(DiskLruCache.Editor editor, Response response) throws IOException
+	private void writeToMetaBody(DiskLruCache.Editor editor, InputStream inputStream) throws IOException
 	{
 		BufferedSink bufferedSink = null;
 		try
 		{
-			bufferedSink = Okio.buffer(editor.newSink(CacheCode.ENTRY_BODY));
-			InputStream inputStream = response.body().byteStream();
+			bufferedSink = Okio.buffer(editor.newSink(OkioCache.ENTRY_BODY));
 			int len;
 			byte[] buffer = new byte[4096];
 			while ((len = inputStream.read(buffer)) != -1)
 			{
 				bufferedSink.write(buffer, 0, len);
 			}
-		} finally
+		}
+		finally
 		{
 			if (null != bufferedSink)
 			{
@@ -277,7 +275,8 @@ public class CacheEntry
 				String line = ByteString.of(bytes).base64();
 				sink.writeUtf8(line).writeByte('\n');
 			}
-		} catch (CertificateEncodingException e)
+		}
+		catch (CertificateEncodingException e)
 		{
 			throw new IOException(e.getMessage());
 		}
@@ -315,7 +314,8 @@ public class CacheEntry
 				throw new IOException("expected an int but was \"" + result + line + "\"");
 			}
 			return (int) result;
-		} catch (NumberFormatException e)
+		}
+		catch (NumberFormatException e)
 		{
 			throw new IOException(e.getMessage());
 		}
@@ -346,7 +346,8 @@ public class CacheEntry
 				result.add(certificateFactory.generateCertificate(bytes.inputStream()));
 			}
 			return result;
-		} catch (CertificateException e)
+		}
+		catch (CertificateException e)
 		{
 			throw new IOException(e.getMessage());
 		}
@@ -367,8 +368,8 @@ public class CacheEntry
 			this.snapshot = snapshot;
 			this.contentType = contentType;
 			this.contentLength = contentLength;
-
-			Source source = snapshot.getSource(CacheCode.ENTRY_BODY);
+			
+			Source source = snapshot.getSource(OkioCache.ENTRY_BODY);
 			bodySource = Okio.buffer(new ForwardingSource(source)
 			{
 				@Override
@@ -392,7 +393,8 @@ public class CacheEntry
 			try
 			{
 				return contentLength != null ? Long.parseLong(contentLength) : -1;
-			} catch (NumberFormatException e)
+			}
+			catch (NumberFormatException e)
 			{
 				return -1;
 			}

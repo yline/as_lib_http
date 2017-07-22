@@ -15,6 +15,9 @@ import okhttp3.Response;
 
 /**
  * 注意：若无网络，则chain.proceed(request)之后就不会执行
+ *
+ * @author yline 2017/7/22 -- 15:40
+ * @version 1.0.0
  */
 public abstract class BaseInterceptor implements Interceptor
 {
@@ -38,7 +41,7 @@ public abstract class BaseInterceptor implements Interceptor
 	{
 		if (isDebug())
 		{
-			LogUtil.v(Arrays.toString(strings) + "is null", LogUtil.LOG_LOCATION_PARENT);
+			LogUtil.v(Arrays.toString(strings) + " is null", LogUtil.LOG_LOCATION_PARENT);
 		}
 	}
 
@@ -75,6 +78,6 @@ public abstract class BaseInterceptor implements Interceptor
 
 	protected boolean isDebug()
 	{
-		return XHttpConfig.getInstance().isInterceptorDebug();
+		return XHttpConfig.getInstance().isProcessLog();
 	}
 }

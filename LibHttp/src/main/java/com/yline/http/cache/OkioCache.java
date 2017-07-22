@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -21,32 +22,40 @@ import okio.Buffer;
 import okio.BufferedSink;
 import okio.ByteString;
 
-class CacheCode
+class OkioCache
 {
-	public static final int ENTRY_METADATA = 0;
+	public static final MediaType DEFAULT_MEDIA_TYPE = MediaType.parse("application/json; charset=utf-8");
 
-	public static final int ENTRY_BODY = 1;
+	public static final int ENTRY_METADATA = 0; // 编号0
 
-	public static final int ENTRY_COUNT = 2;
+	public static final int ENTRY_BODY = 1; // 编号1
 
-	private static final int VERSION = 201105;
+	public static final int ENTRY_COUNT = 2; // 总数
 
-	final DiskLruCache diskLruCache;
+	public static final int VERSION = 201105;
 
-	public CacheCode(File dir, long maxSize)
+	private final DiskLruCache diskLruCache;
+
+	public OkioCache(File dir, long maxSize)
 	{
 		this(dir, maxSize, FileSystem.SYSTEM);
 	}
 
-	public CacheCode(File dir, long maxSize, FileSystem fileSystem)
+	public OkioCache(File dir, long maxSize, FileSystem fileSystem)
 	{
 		this.diskLruCache = DiskLruCache.create(fileSystem, dir, VERSION, ENTRY_COUNT, maxSize);
 	}
 
-	public Response get(Request request)
+	/**
+	 * return null, if error happened
+	 *
+	 * @param request
+	 * @return
+	 */
+	protected Response getResponse(Request request)
 	{
 		DiskLruCache.Snapshot snapshot = null;
-		CacheEntry textCacheEntry = null;
+		CacheEntry cacheEntry = null;
 		try
 		{
 			String key = key(request);
@@ -63,12 +72,14 @@ class CacheCode
 		}
 		catch (IOException e)
 		{
+			// Give up because the cache cannot be read.
+			e.printStackTrace();
 			return null;
 		}
 
 		try
 		{
-			textCacheEntry = new CacheEntry(snapshot.getSource(ENTRY_METADATA));
+			cacheEntry = new CacheEntry(snapshot.getSource(ENTRY_METADATA));
 		}
 		catch (IOException e)
 		{
@@ -76,9 +87,9 @@ class CacheCode
 			return null;
 		}
 
-		Response response = textCacheEntry.response(request.body(), snapshot);
+		Response response = cacheEntry.response(request.body(), snapshot);
 
-		boolean isMatches = textCacheEntry.matches(request, response);
+		boolean isMatches = cacheEntry.matches(request, response);
 		if (!isMatches)
 		{
 			Util.closeQuietly(response.body());
@@ -88,20 +99,31 @@ class CacheCode
 		return response;
 	}
 
-	public void put(Response response) throws IOException
+	protected boolean putResponse(Response response, InputStream inputStream)
 	{
 		// 过滤头部，不符合vary的字符“*”
 		if (HttpHeaders.hasVaryAll(response))
 		{
-			LogUtil.e("CacheCode hasVaryAll is false");
-			return;
+			LogUtil.e("OkioCache hasVaryAll is false");
+			return false;
 		}
 
 		// 过滤 请求方式，仅限get + post(json)
-		String key = key(response.request());
+		String key = null;
+		try
+		{
+			key = key(response.request());
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+
+		// 校验一次
 		if (TextUtils.isEmpty(key))
 		{
-			return;
+			return false;
 		}
 
 		DiskLruCache.Editor editor = null;
@@ -111,15 +133,17 @@ class CacheCode
 			CacheEntry textCacheEntry = new CacheEntry(response);
 			if (null == editor)
 			{
-				return;
+				return false;
 			}
-			textCacheEntry.writeTo(editor, response);
+			textCacheEntry.writeTo(editor, inputStream);
+
+			return true;
 		}
 		catch (IOException e)
 		{
 			abortQuietly(editor);
 			LogUtil.e("textCache put IOException", e);
-			return;
+			return false;
 		}
 	}
 
@@ -139,13 +163,13 @@ class CacheCode
 	}
 
 	/**
-	 * 过滤请求方式
+	 * 过滤请求方式 -- 请求规则
 	 *
 	 * @param request
 	 * @return
 	 * @throws IOException
 	 */
-	private String key(Request request) throws IOException
+	protected String key(Request request) throws IOException
 	{
 		String key = null;
 		String method = request.method();
@@ -158,7 +182,7 @@ class CacheCode
 			}
 			return key;
 		}
-		else if (method == "POST" && CacheManager.DEFAULT_MEDIA_TYPE.equals(request.body().contentType()))
+		else if (method == "POST" && DEFAULT_MEDIA_TYPE.equals(request.body().contentType()))
 		{
 			RequestBody requestBody = request.body();
 			BufferedSink sink = new Buffer();
@@ -200,6 +224,6 @@ class CacheCode
 
 	private boolean isDebug()
 	{
-		return XHttpConfig.getInstance().isCacheDebug();
+		return XHttpConfig.getInstance().isProcessLog();
 	}
 }

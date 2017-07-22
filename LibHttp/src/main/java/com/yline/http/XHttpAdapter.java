@@ -24,8 +24,6 @@ public abstract class XHttpAdapter<Result>
 	 *
 	 * @param code 不为0，若为Integer.MIN_VALUE，则没有经过code的解析
 	 * @param data 对应的，数据
-	 * @throws JSONException
-	 * @throws JsonParseException
 	 */
 	public void onSuccess(int code, String data) throws JSONException, JsonParseException
 	{

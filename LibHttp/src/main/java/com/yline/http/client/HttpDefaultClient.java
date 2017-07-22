@@ -1,9 +1,15 @@
-package com.yline.http.helper;
+package com.yline.http.client;
 
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 
+/**
+ * 按照 OKHttp的 既定规则
+ *
+ * @author yline 2017/7/22 -- 15:31
+ * @version 1.0.0
+ */
 public class HttpDefaultClient
 {
 	private HttpDefaultClient()

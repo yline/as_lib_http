@@ -2,8 +2,8 @@ package com.yline.http.request;
 
 import com.google.gson.Gson;
 import com.yline.http.XHttpAdapter;
-import com.yline.http.cache.CacheManager;
-import com.yline.http.helper.HttpDefaultClient;
+import com.yline.http.cache.XCache;
+import com.yline.http.client.HttpDefaultClient;
 import com.yline.http.response.IResponse;
 import com.yline.http.response.XHttpResponse;
 import com.yline.http.util.LogUtil;
@@ -28,7 +28,7 @@ public class XHttp implements IRequest, IRequestParam
 	@Override
 	public <T> void doGet(String actionUrl, Map<String, Object> actionMap, final Class<T> clazz, XHttpAdapter<T> adapter)
 	{
-		final IResponse iResponse = new XHttpResponse(adapter, this);
+		final IResponse iResponse = getHttpResponse(adapter);
 
 		// 配置Client
 		OkHttpClient okHttpClient = getHttpClient();
@@ -56,7 +56,7 @@ public class XHttp implements IRequest, IRequestParam
 	@Override
 	public <T> void doPost(String actionUrl, Object jsonParam, final Class<T> clazz, XHttpAdapter<T> adapter)
 	{
-		final IResponse iResponse = new XHttpResponse(adapter, this);
+		final IResponse iResponse = getHttpResponse(adapter);
 
 		// 配置Client
 		OkHttpClient okHttpClient = getHttpClient();
@@ -84,32 +84,39 @@ public class XHttp implements IRequest, IRequestParam
 	@Override
 	public <T> void doPost(String actionUrl, MultipartBody.Builder bodyBuilder, final Class<T> clazz, XHttpAdapter<T> adapter)
 	{
-		final IResponse iResponse = new XHttpResponse(adapter, this);
-
-		// 配置Client
-		OkHttpClient okHttpClient = getHttpClient();
-
-		// 配置请求参数
-		Request request = genPostMultiRequest(actionUrl, bodyBuilder);
-
-		// 发送请求
-		okHttpClient.newCall(request).enqueue(new Callback()
+		if (null == bodyBuilder)
 		{
-			@Override
-			public void onFailure(Call call, IOException e)
-			{
-				iResponse.handleFailure(call, e);
-			}
+			doPost(actionUrl, "", clazz, adapter);
+		}
+		else
+		{
+			final IResponse iResponse = getHttpResponse(adapter);
 
-			@Override
-			public void onResponse(Call call, Response response) throws IOException
+			// 配置Client
+			OkHttpClient okHttpClient = getHttpClient();
+
+			// 配置请求参数
+			Request request = genPostMultiRequest(actionUrl, bodyBuilder);
+
+			// 发送请求
+			okHttpClient.newCall(request).enqueue(new Callback()
 			{
-				iResponse.handleSuccess(call, response, clazz);
-			}
-		});
+				@Override
+				public void onFailure(Call call, IOException e)
+				{
+					iResponse.handleFailure(call, e);
+				}
+
+				@Override
+				public void onResponse(Call call, Response response) throws IOException
+				{
+					iResponse.handleSuccess(call, response, clazz);
+				}
+			});
+		}
 	}
 
-	private Request genPostMultiRequest(String actionUrl, MultipartBody.Builder bodyBuilder)
+	protected Request genPostMultiRequest(String actionUrl, MultipartBody.Builder bodyBuilder)
 	{
 		Request.Builder builder = new Request.Builder();
 
@@ -133,7 +140,7 @@ public class XHttp implements IRequest, IRequestParam
 		return builder.build();
 	}
 
-	private Request genPostJsonRequest(String actionUrl, Object jsonParam)
+	protected Request genPostJsonRequest(String actionUrl, Object jsonParam)
 	{
 		Request.Builder builder = new Request.Builder();
 
@@ -153,7 +160,7 @@ public class XHttp implements IRequest, IRequestParam
 		return builder.build();
 	}
 
-	private RequestBody genPostJsonRequestBody(Object jsonParam)
+	protected RequestBody genPostJsonRequestBody(Object jsonParam)
 	{
 		String jsonBody;
 		if (null == jsonParam)
@@ -169,7 +176,7 @@ public class XHttp implements IRequest, IRequestParam
 		{
 			LogUtil.v("post requestBody = " + jsonBody);
 		}
-		return RequestBody.create(CacheManager.DEFAULT_MEDIA_TYPE, jsonBody);
+		return RequestBody.create(XCache.DEFAULT_MEDIA_TYPE, jsonBody);
 	}
 
 	/**
@@ -179,7 +186,7 @@ public class XHttp implements IRequest, IRequestParam
 	 * @param actionMap
 	 * @return
 	 */
-	private Request genGetRequest(String actionUrl, Map<String, Object> actionMap)
+	protected Request genGetRequest(String actionUrl, Map<String, Object> actionMap)
 	{
 		Request.Builder builder = new Request.Builder();
 
@@ -203,7 +210,7 @@ public class XHttp implements IRequest, IRequestParam
 	 * @param actionMap
 	 * @return
 	 */
-	private String genGetParamUrl(Map<String, Object> actionMap)
+	protected String genGetParamUrl(Map<String, Object> actionMap)
 	{
 		if (null == actionMap)
 		{
@@ -229,6 +236,20 @@ public class XHttp implements IRequest, IRequestParam
 			}
 			return stringBuffer.toString();
 		}
+	}
+
+	/* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& 重写的方法 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& */
+
+	/**
+	 * 设置Http 处理方法
+	 *
+	 * @param adapter
+	 * @param <T>
+	 * @return
+	 */
+	protected <T> IResponse getHttpResponse(XHttpAdapter<T> adapter)
+	{
+		return new XHttpResponse(adapter, this);
 	}
 
 	/**
@@ -261,6 +282,12 @@ public class XHttp implements IRequest, IRequestParam
 
 	@Override
 	public boolean isResponseJsonType()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean isResponseCache()
 	{
 		return true;
 	}

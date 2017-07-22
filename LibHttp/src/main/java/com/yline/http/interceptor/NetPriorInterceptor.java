@@ -1,61 +1,45 @@
 package com.yline.http.interceptor;
 
 import com.yline.http.XHttpConfig;
-import com.yline.http.cache.CacheManager;
+import com.yline.http.cache.XCache;
 
 import java.io.IOException;
 
-import okhttp3.Interceptor;
 import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.internal.Util;
 
 /**
- * 由于缓存读取的时候，采用的是默认的io；会导致只能读取一次的bug，因此，先缓存+返回，的策略，有问题
+ * 按照 网络优先的 规则
+ * 有网络 -- 读取网络
+ * 无网络 -- 读取缓存 -- 无缓存 -- 返回失败
  *
- * @author yline 2017/7/14 -- 15:24
+ * @author yline 2017/7/22 -- 15:51
  * @version 1.0.0
  */
-public class CacheAndNetInterceptor extends BaseInterceptor
+public class NetPriorInterceptor extends BaseInterceptor
 {
-	private OnCacheResponseCallback onCacheResponseCallback;
-
-	public CacheAndNetInterceptor()
-	{
-	}
-
-	public void setOnCacheResponseCallback(OnCacheResponseCallback onCacheResponseCallback)
-	{
-		this.onCacheResponseCallback = onCacheResponseCallback;
-	}
-
 	@Override
-	public Response intercept(Interceptor.Chain chain) throws IOException
+	public Response intercept(Chain chain) throws IOException
 	{
 		Request request = chain.request();
 		preLog(chain, request);
 
-		Response cacheResponse = CacheManager.getInstance().get(request);
-		if (null != onCacheResponseCallback)
-		{
-			onCacheResponseCallback.onCacheResponse(cacheResponse);
-		}
-
 		long time1 = System.nanoTime();
 		boolean isNetWorkable = isNetConnected(XHttpConfig.getInstance().getContext());
+		hintLog("isNetWorkable = " + isNetWorkable);
+
 		if (isNetWorkable)
 		{
 			Response response = chain.proceed(request);
 
 			postLog(response, System.nanoTime() - time1);
-			CacheManager.getInstance().write(response);
-			Response resultResponse = CacheManager.getInstance().get(request);
-
-			return resultResponse;
+			return response;
 		}
 		else
 		{
+			Response cacheResponse = XCache.getInstance().getCache(request);
 			if (null == cacheResponse)
 			{
 				nullLog("cacheResponse");

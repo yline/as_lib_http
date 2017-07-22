@@ -2,22 +2,19 @@ package com.yline.http;
 
 import android.content.Context;
 
-import com.yline.http.cache.CacheManager;
 import com.yline.http.util.LogUtil;
 
 import java.io.File;
 
 public class XHttpConfig
 {
-	private Context context;
+	private Context sContext;
 
 	private File cacheDir;
 
 	private int cacheMaxSize = 128 * 1024 * 1024;
 
-	private boolean isUtilLog = true;
-
-	private boolean isUtilLogLocation = true;
+	private boolean isProcessLog = true;
 
 	private XHttpConfig()
 	{
@@ -29,15 +26,63 @@ public class XHttpConfig
 	}
 
 	/* 这个类，必须被初始化；否则程序出错 */
-	public void init(Context context)
+	public XHttpConfig init(Context context)
 	{
-		this.context = context;
+		this.sContext = context;
 		if (null == cacheDir)
 		{
-			this.cacheDir = context.getExternalCacheDir();
+			this.cacheDir = sContext.getExternalCacheDir();
 		}
-		LogUtil.init(isUtilLog, isUtilLogLocation);
-		CacheManager.getInstance().init(cacheDir, cacheMaxSize);
+		return this;
+	}
+
+	public boolean isProcessLog()
+	{
+		return isProcessLog;
+	}
+
+	public XHttpConfig setProcessLog(boolean processLog)
+	{
+		this.isProcessLog = processLog;
+		return this;
+	}
+
+	/**
+	 * 库工程 是否 打印日志
+	 *
+	 * @param utilLog
+	 * @return
+	 */
+	public XHttpConfig setUtilLog(boolean utilLog)
+	{
+		LogUtil.setUtilLog(utilLog);
+		return this;
+	}
+
+	/**
+	 * 库工程 日志 是否具有定位功能
+	 *
+	 * @param utilLogLocation
+	 * @return
+	 */
+	public XHttpConfig setUtilLogLocation(boolean utilLogLocation)
+	{
+		LogUtil.setUtilLogLocation(utilLogLocation);
+		return this;
+	}
+
+	public Context getContext()
+	{
+		return sContext;
+	}
+
+	public File getCacheDir()
+	{
+		if (null == cacheDir)
+		{
+			this.cacheDir = sContext.getExternalCacheDir();
+		}
+		return cacheDir;
 	}
 
 	public XHttpConfig setCacheDir(File cacheDir)
@@ -46,43 +91,19 @@ public class XHttpConfig
 		return this;
 	}
 
+	public int getCacheMaxSize()
+	{
+		return cacheMaxSize;
+	}
+
 	public XHttpConfig setCacheMaxSize(int cacheMaxSize)
 	{
 		this.cacheMaxSize = cacheMaxSize;
 		return this;
 	}
 
-	public XHttpConfig setUtilLog(boolean utilLog)
-	{
-		isUtilLog = utilLog;
-		return this;
-	}
-
-	public XHttpConfig setUtilLogLocation(boolean utilLogLocation)
-	{
-		isUtilLogLocation = utilLogLocation;
-		return this;
-	}
-
-	public Context getContext()
-	{
-		return context;
-	}
-
-	public boolean isInterceptorDebug()
-	{
-		return true;
-	}
-
-	public boolean isCacheDebug()
-	{
-		return true;
-	}
-
 	private static class HttpConfigHolder
 	{
 		private static XHttpConfig sInstance = new XHttpConfig();
 	}
-
-
 }

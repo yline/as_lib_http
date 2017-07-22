@@ -30,6 +30,13 @@ public interface IRequestParam
 	boolean isResponseJsonType();
 
 	/**
+	 * 返回的数据，是否进行缓存
+	 *
+	 * @return true cache, false 不缓存
+	 */
+	boolean isResponseCache();
+
+	/**
 	 * 是否 经过，debug处理
 	 *
 	 * @return

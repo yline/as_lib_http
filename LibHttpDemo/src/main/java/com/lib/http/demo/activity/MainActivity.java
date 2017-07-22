@@ -3,30 +3,25 @@ package com.lib.http.demo.activity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.lib.http.demo.XHttpUtil;
 import com.lib.http.demo.bean.VNewsMultiplexBean;
 import com.lib.http.demo.bean.VNewsSingleBean;
 import com.lib.http.demo.bean.WNewsMultiplexBean;
+import com.lib.http.demo.http.XHttpUtil;
+import com.lib.http.demo.http.YlineHttp;
 import com.yline.http.XHttpAdapter;
-import com.yline.http.interceptor.OnCacheResponseCallback;
-import com.yline.log.LogFileUtil;
 import com.yline.test.BaseTestActivity;
-
-import java.io.IOException;
-
-import okhttp3.Response;
 
 public class MainActivity extends BaseTestActivity
 {
 	@Override
 	protected void testStart(Bundle savedInstanceState)
 	{
-		addButton("Get default", new View.OnClickListener()
+		addButton("doGetDefault", new View.OnClickListener()
 		{
 			@Override
 			public void onClick(View v)
 			{
-				XHttpUtil.doGet(new XHttpAdapter<VNewsSingleBean>()
+				XHttpUtil.doGetDefault(new XHttpAdapter<VNewsSingleBean>()
 				{
 					@Override
 					public void onSuccess(VNewsSingleBean vNewsSingleBean)
@@ -37,90 +32,86 @@ public class MainActivity extends BaseTestActivity
 			}
 		});
 
-		addButton("Get OnlyNetInterceptor", new View.OnClickListener()
+		addButton("doPostDefault", new View.OnClickListener()
 		{
 			@Override
 			public void onClick(View v)
 			{
-				XHttpUtil.doGetOnlyNet(new XHttpAdapter<VNewsSingleBean>()
-				{
-					@Override
-					public void onSuccess(VNewsSingleBean vNewsSingleBean)
-					{
-
-					}
-				});
-			}
-		});
-
-		XHttpUtil.doGet(new XHttpAdapter<VNewsSingleBean>()
-		{
-			@Override
-			public void onSuccess(VNewsSingleBean vNewsSingleBean)
-			{
-
-			}
-		}, new OnCacheResponseCallback()
-		{
-			@Override
-			public void onCacheResponse(Response cacheResponse) throws IOException
-			{
-				if (null != cacheResponse)
-				{
-					LogFileUtil.v(cacheResponse.body().string().toString());
-				}
-				else
-				{
-					LogFileUtil.v("cacheResponse is null");
-				}
-			}
-		});
-
-		addButton("Get CacheAndNetInterceptor", new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				XHttpUtil.doGet(new XHttpAdapter<VNewsSingleBean>()
-				{
-					@Override
-					public void onSuccess(VNewsSingleBean vNewsSingleBean)
-					{
-
-					}
-				}, new OnCacheResponseCallback()
-				{
-					@Override
-					public void onCacheResponse(Response cacheResponse) throws IOException
-					{
-						if (null != cacheResponse)
-						{
-							LogFileUtil.v(cacheResponse.body().string().toString());
-						}
-						else
-						{
-							LogFileUtil.v("cacheResponse is null");
-						}
-					}
-				});
-			}
-		});
-
-		addButton("Post default", new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				XHttpUtil.doPost(new XHttpAdapter<VNewsMultiplexBean>()
+				XHttpUtil.doPostDefault(new WNewsMultiplexBean(0, 10), new XHttpAdapter<VNewsMultiplexBean>()
 				{
 					@Override
 					public void onSuccess(VNewsMultiplexBean vNewsMultiplexBean)
 					{
 
 					}
-				}, new WNewsMultiplexBean(0, 3));
+				});
 			}
 		});
 
+		addButton("doGetNetPrior", new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				XHttpUtil.doGetNetPrior(new XHttpAdapter<VNewsSingleBean>()
+				{
+					@Override
+					public void onSuccess(VNewsSingleBean vNewsSingleBean)
+					{
+
+					}
+				});
+			}
+		});
+
+		addButton("doPostNetPrior", new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				XHttpUtil.doPostNetPrior(new WNewsMultiplexBean(0, 10), new XHttpAdapter<VNewsMultiplexBean>()
+				{
+					@Override
+					public void onSuccess(VNewsMultiplexBean vNewsMultiplexBean)
+					{
+
+					}
+				});
+			}
+		});
+
+		addButton("doGetCachePrior", new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				XHttpUtil.doGetCachePrior(new XHttpAdapter<VNewsSingleBean>()
+				{
+					@Override
+					public void onSuccess(VNewsSingleBean vNewsSingleBean)
+					{
+
+					}
+				});
+			}
+		});
+		
+		addButton("doPostCachePrior", new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				XHttpUtil.doPostCachePrior(new WNewsMultiplexBean(0, 10), new XHttpAdapter<VNewsMultiplexBean>()
+				{
+					@Override
+					public void onSuccess(VNewsMultiplexBean vNewsMultiplexBean)
+					{
+
+					}
+				});
+			}
+		});
+
+		new YlineHttp().doPost("", null, String.class, null);
 	}
 }
