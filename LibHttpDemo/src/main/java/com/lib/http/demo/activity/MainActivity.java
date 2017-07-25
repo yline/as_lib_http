@@ -7,7 +7,6 @@ import com.lib.http.demo.bean.VNewsMultiplexBean;
 import com.lib.http.demo.bean.VNewsSingleBean;
 import com.lib.http.demo.bean.WNewsMultiplexBean;
 import com.lib.http.demo.http.XHttpUtil;
-import com.lib.http.demo.http.YlineHttp;
 import com.yline.http.XHttpAdapter;
 import com.yline.test.BaseTestActivity;
 
@@ -111,7 +110,5 @@ public class MainActivity extends BaseTestActivity
 				});
 			}
 		});
-
-		new YlineHttp().doPost("", null, String.class, null);
 	}
 }

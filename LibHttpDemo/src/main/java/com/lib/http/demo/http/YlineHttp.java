@@ -62,12 +62,6 @@ public class YlineHttp extends XHttp
 	}
 
 	@Override
-	public boolean isResponseJsonType()
-	{
-		return super.isResponseJsonType();
-	}
-
-	@Override
 	public boolean isDebug()
 	{
 		return super.isDebug();

@@ -1,15 +1,11 @@
 package com.yline.http.response;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.yline.http.XHttpAdapter;
 import com.yline.http.cache.XCache;
 import com.yline.http.request.IRequestParam;
 import com.yline.http.util.LogUtil;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -115,6 +111,7 @@ public class XHttpResponse implements IResponse
 	@Override
 	public <T> void handleSuccess(Call call, Response response, Class<T> clazz) throws IOException
 	{
+		// 实现缓存策略
 		String responseData;
 		if (iRequestParam.isResponseCache())
 		{
@@ -125,95 +122,44 @@ public class XHttpResponse implements IResponse
 			responseData = response.body().string();
 		}
 
-		// http 出口日志
+		// 提供 http 出口日志
 		if (iRequestParam.isDebug())
 		{
 			LogUtil.v("response = " + responseData);
 		}
 
+		handleSuccess(responseData, clazz);
+	}
+
+	/**
+	 * 输出结果给 adapter
+	 *
+	 * @param responseData
+	 * @param clazz
+	 * @param <T>
+	 */
+	protected <T> void handleSuccess(String responseData, Class<T> clazz) throws IOException
+	{
 		try
 		{
-			if (iRequestParam.isResponseJsonType())
+			if (null == clazz)
 			{
-				if (iRequestParam.isResponseCodeHandle())
-				{
-					JSONObject jsonObject = new JSONObject(responseData);
-					int code = jsonObject.getInt("code");
-					String data = jsonObject.getString("data");
-
-					if (code == XHttpAdapter.REQUEST_SUCCESS_CODE)
-					{
-						// code -> json 解析 -> 返回数据
-						T result = new Gson().fromJson(data, clazz);
-						handleAdapter(result);
-					}
-					else
-					{
-						// code 解析 -> 返回数据
-						handleAdapter(code, data);
-					}
-				}
-				else
-				{
-					// json 解析 -> 返回数据
-					T result = new Gson().fromJson(responseData, clazz);
-					handleAdapter(result);
-				}
+				handleAdapter(null);
+			}
+			else if (clazz == String.class)
+			{
+				handleAdapter(responseData);
 			}
 			else
 			{
-				// 直接，返回数据
-				handleAdapter(Integer.MIN_VALUE, responseData);
+				// json 解析 -> 返回数据
+				T result = new Gson().fromJson(responseData, clazz);
+				handleAdapter(result);
 			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
 		}
 		catch (JsonSyntaxException e)
 		{
 			e.printStackTrace();
-		}
-	}
-
-	protected void handleAdapter(final int code, final String data)
-	{
-		if (iRequestParam.isResponseHandler())
-		{
-			httpHandler.post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					try
-					{
-						adapter.onSuccess(code, data);
-					}
-					catch (JSONException e)
-					{
-						e.printStackTrace();
-					}
-					catch (JsonParseException e)
-					{
-						e.printStackTrace();
-					}
-				}
-			});
-		}
-		else
-		{
-			try
-			{
-				adapter.onSuccess(code, data);
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-			catch (JsonParseException e)
-			{
-				e.printStackTrace();
-			}
 		}
 	}
 

@@ -1,13 +1,15 @@
 package com.lib.http.demo.http;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.yline.http.XHttpAdapter;
 import com.yline.http.request.IRequestParam;
 import com.yline.http.response.XHttpResponse;
 
-import java.io.IOException;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import okhttp3.Call;
-import okhttp3.Response;
+import java.io.IOException;
 
 /**
  * 自定义 处理类
@@ -23,20 +25,63 @@ public class YlineResponse extends XHttpResponse
 	}
 
 	@Override
-	public <T> void handleSuccess(Call call, Response response, Class<T> clazz) throws IOException
+	protected <T> void handleSuccess(String responseData, Class<T> clazz) throws IOException
 	{
-		super.handleSuccess(call, response, clazz);
+		if (iRequestParam.isResponseCodeHandle() && adapter instanceof YlineAdapter)
+		{
+			try
+			{
+				JSONObject jsonObject = new JSONObject(responseData);
+				int code = jsonObject.getInt("code");
+				String data = jsonObject.getString("data");
+
+				if (null == clazz)
+				{
+					handlerYlineAdapter((YlineAdapter) adapter, Integer.MIN_VALUE, null);
+				}
+				else if (clazz == String.class)
+				{
+					handlerYlineAdapter((YlineAdapter) adapter, code, data);
+				}
+				else
+				{
+					// code -> json 解析 -> 返回数据
+					T result = new Gson().fromJson(data, clazz);
+					handlerYlineAdapter((YlineAdapter) adapter, code, result);
+					handleAdapter(result);
+				}
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+			catch (JsonSyntaxException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			super.handleSuccess(responseData, clazz);
+		}
 	}
 
-	@Override
-	protected String setCache(Response response) throws IOException
+	private <T> void handlerYlineAdapter(final YlineAdapter ylineAdapter, final int code, final T result)
 	{
-		return super.setCache(response);
-	}
-
-	@Override
-	public <T> void handleFailure(Call call, IOException ex)
-	{
-		super.handleFailure(call, ex);
+		if (iRequestParam.isResponseHandler())
+		{
+			httpHandler.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					ylineAdapter.onSuccess(code, result);
+				}
+			});
+		}
+		else
+		{
+			ylineAdapter.onSuccess(code, result);
+		}
 	}
 }

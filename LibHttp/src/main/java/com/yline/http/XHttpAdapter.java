@@ -1,9 +1,6 @@
 package com.yline.http;
 
-import com.google.gson.JsonParseException;
 import com.yline.http.util.LogUtil;
-
-import org.json.JSONException;
 
 /**
  * 配置每次的请求参数
@@ -19,16 +16,6 @@ public abstract class XHttpAdapter<Result>
 	 * @param result
 	 */
 	public abstract void onSuccess(Result result);
-
-	/**
-	 *
-	 * @param code 不为0，若为Integer.MIN_VALUE，则没有经过code的解析
-	 * @param data 对应的，数据
-	 */
-	public void onSuccess(int code, String data) throws JSONException, JsonParseException
-	{
-
-	}
 
 	public void onFailure(Exception ex, boolean isDebug)
 	{

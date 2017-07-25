@@ -281,12 +281,6 @@ public class XHttp implements IRequest, IRequestParam
 	}
 
 	@Override
-	public boolean isResponseJsonType()
-	{
-		return true;
-	}
-
-	@Override
 	public boolean isResponseCache()
 	{
 		return true;

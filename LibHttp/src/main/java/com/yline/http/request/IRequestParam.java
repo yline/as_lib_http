@@ -23,13 +23,6 @@ public interface IRequestParam
 	boolean isResponseHandler();
 
 	/**
-	 * 返回的数据，是否满足Json的要求
-	 *
-	 * @return true json，false 其它
-	 */
-	boolean isResponseJsonType();
-
-	/**
 	 * 返回的数据，是否进行缓存
 	 *
 	 * @return true cache, false 不缓存
