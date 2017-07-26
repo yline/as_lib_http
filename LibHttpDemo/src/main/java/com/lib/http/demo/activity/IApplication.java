@@ -14,6 +14,6 @@ public class IApplication extends Application
 		super.onCreate();
 
 		SDKManager.init(this, new SDKConfig());
-		XHttpConfig.getInstance().init(this);
+		XHttpConfig.getInstance().init(IApplication.this);
 	}
 }
