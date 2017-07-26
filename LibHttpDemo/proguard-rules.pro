@@ -75,45 +75,9 @@
 
 ######################################### 本工程 ############################################
 
-#保持 native 方法不被混淆
-#  -keepclasseswithmembernames class * {
-#       native <methods>;
-#  }
+#okhttp
+-dontwarn com.squareup.okhttp3.**
+-keep class com.squareup.okhttp3.** { *;}
+-dontwarn okio.**
 
-#保持自定义控件类不被混淆
-#-keepclasseswithmembers class * {
-#    public <init>(android.content.Context, android.util.AttributeSet);
-#}
-
-# 保持自定义控件类不被混淆
-#-keepclasseswithmembers class * {
-#    public <init>(android.content.Context, android.util.AttributeSet, int);
-#}
-
-#保持类成员
-#-keepclassmembers class * extends android.app.Activity {
-#   public void *(android.view.View);
-#}
-
-#保持枚举 enum 类不被混淆 如果混淆报错，建议直接使用上面的 -keepclassmembers class * implements java.io.Serializable即可
-#-keepclassmembers enum * {
-#  public static **[] values();
-#  public static ** valueOf(java.lang.String);
-#}
-
-#保持 Parcelable 不被混淆
-#-keep class * implements android.os.Parcelable {
-#  public static final android.os.Parcelable$Creator *;
-#}
-
-#保持 Serializable 不被混淆
-#-keepnames class * implements java.io.Serializable
-
-#保留一个完整的包
-#-keep class com.lippi.recorder.utils.** {
-#    *;
-#}
-
-#如果不想混淆 keep 掉
-#-keep class MyClass;
 
