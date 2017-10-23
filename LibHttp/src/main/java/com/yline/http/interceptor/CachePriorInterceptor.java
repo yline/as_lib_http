@@ -1,13 +1,18 @@
 package com.yline.http.interceptor;
 
-import com.yline.http.cache.XCache;
+import com.yline.http.OkHttpConfig;
+import com.yline.http.cache.CacheManager;
 
 import java.io.IOException;
+import java.util.Locale;
 
+import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
 /**
+ * 注意：若无网络，则chain.proceed(request)之后就不会执行
+ *
  * 缓存优先的策略
  * 有缓存 -- 读取缓存
  * 无缓存 -- 请求网络
@@ -15,28 +20,23 @@ import okhttp3.Response;
  * @author yline 2017/7/22 -- 15:41
  * @version 1.0.0
  */
-public class CachePriorInterceptor extends BaseInterceptor
-{
-	@Override
-	public Response intercept(Chain chain) throws IOException
-	{
-		Request request = chain.request();
-		preLog(chain, request);
+public class CachePriorInterceptor implements Interceptor {
 
-		long time1 = System.nanoTime();
-		Response cacheResponse = XCache.getInstance().getCache(request);
-		if (null == cacheResponse)
-		{
-			nullLog("cacheResponse");
-			Response response = chain.proceed(request);
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        Request request = chain.request();
+        OkHttpConfig.v(String.format("CachePriorInterceptor request %s on %s%n%s", request.url(), chain.connection(), request.headers()));
 
-			postLog(response, System.nanoTime() - time1);
-			return response;
-		}
-		else
-		{
-			postLog(cacheResponse, System.nanoTime() - time1);
-			return cacheResponse;
-		}
-	}
+        long time = System.currentTimeMillis();
+        Response cacheResponse = CacheManager.getCache(request);
+        OkHttpConfig.v("cacheResponse = " + cacheResponse);
+        if (null == cacheResponse) {
+            Response response = chain.proceed(request);
+            OkHttpConfig.v(String.format(Locale.CHINA, "CachePriorInterceptor response %s in %dms%n%s", response.request().url(), (System.currentTimeMillis() - time), response.headers()));
+            return response;
+        } else {
+            OkHttpConfig.v(String.format(Locale.CHINA, "CachePriorInterceptor cacheResponse %s in %dms%n%s", cacheResponse.request().url(), (System.currentTimeMillis() - time), cacheResponse.headers()));
+            return cacheResponse;
+        }
+    }
 }

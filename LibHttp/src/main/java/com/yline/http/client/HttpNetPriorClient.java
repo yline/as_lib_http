@@ -14,30 +14,25 @@ import okhttp3.OkHttpClient;
  * @author yline 2017/2/28 -- 17:29
  * @version 1.0.0
  */
-public class HttpNetPriorClient extends OkHttpClient
-{
-	private HttpNetPriorClient()
-	{
-	}
-	
-	public static OkHttpClient getInstance()
-	{
-		return HttpNetThanCacheHolder.getHttpClient();
-	}
+public class HttpNetPriorClient extends OkHttpClient {
+    private HttpNetPriorClient() {
+    }
 
-	private static class HttpNetThanCacheHolder
-	{
-		private static OkHttpClient getHttpClient()
-		{
-			Builder builder = new Builder();
+    public static OkHttpClient getInstance() {
+        return HttpNetThanCacheHolder.getHttpClient();
+    }
 
-			// 设置超时
-			builder.connectTimeout(10, TimeUnit.SECONDS).readTimeout(10, TimeUnit.SECONDS).writeTimeout(10, TimeUnit.SECONDS);
+    private static class HttpNetThanCacheHolder {
+        private static OkHttpClient getHttpClient() {
+            Builder builder = new Builder();
 
-			// 添加拦截器；默认走网络，如果没有网，则走缓存
-			builder.addInterceptor(new NetPriorInterceptor());
+            // 设置超时
+            builder.connectTimeout(10, TimeUnit.SECONDS).readTimeout(10, TimeUnit.SECONDS).writeTimeout(10, TimeUnit.SECONDS);
 
-			return builder.build();
-		}
-	}
+            // 添加拦截器；默认走网络，如果没有网，则走缓存
+            builder.addInterceptor(new NetPriorInterceptor());
+
+            return builder.build();
+        }
+    }
 }

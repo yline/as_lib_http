@@ -10,27 +10,22 @@ import okhttp3.OkHttpClient;
  * @author yline 2017/7/22 -- 15:31
  * @version 1.0.0
  */
-public class HttpDefaultClient
-{
-	private HttpDefaultClient()
-	{
-	}
-	
-	public static OkHttpClient getInstance()
-	{
-		return HttpDefaultHolder.getHttpClient();
-	}
+public class HttpDefaultClient {
+    private HttpDefaultClient() {
+    }
 
-	private static class HttpDefaultHolder
-	{
-		private static OkHttpClient getHttpClient()
-		{
-			OkHttpClient.Builder builder = new OkHttpClient.Builder();
+    public static OkHttpClient getInstance() {
+        return HttpDefaultHolder.getHttpClient();
+    }
 
-			// 设置超时
-			builder.connectTimeout(10, TimeUnit.SECONDS).readTimeout(10, TimeUnit.SECONDS).writeTimeout(10, TimeUnit.SECONDS);
+    private static class HttpDefaultHolder {
+        private static OkHttpClient getHttpClient() {
+            OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
-			return builder.build();
-		}
-	}
+            // 设置超时
+            builder.connectTimeout(10, TimeUnit.SECONDS).readTimeout(10, TimeUnit.SECONDS).writeTimeout(10, TimeUnit.SECONDS);
+
+            return builder.build();
+        }
+    }
 }

@@ -4,16 +4,15 @@ import android.app.Application;
 
 import com.yline.application.SDKConfig;
 import com.yline.application.SDKManager;
-import com.yline.http.XHttpConfig;
+import com.yline.http.OkHttpConfig;
+import com.yline.http.OkHttpManager;
 
-public class IApplication extends Application
-{
-	@Override
-	public void onCreate()
-	{
-		super.onCreate();
+public class IApplication extends Application {
+    @Override
+    public void onCreate() {
+        super.onCreate();
 
-		SDKManager.init(this, new SDKConfig());
-		XHttpConfig.getInstance().init(IApplication.this);
-	}
+        SDKManager.init(this, new SDKConfig());
+        OkHttpManager.init(this, new OkHttpConfig());
+    }
 }
