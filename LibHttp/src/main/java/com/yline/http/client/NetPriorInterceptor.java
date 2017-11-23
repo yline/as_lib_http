@@ -1,7 +1,7 @@
-package com.yline.http.interceptor;
+package com.yline.http.client;
 
-import com.yline.http.OkHttpConfig;
-import com.yline.http.cache.CacheManager;
+import com.yline.http.manager.CacheManager;
+import com.yline.http.manager.LibManager;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -27,26 +27,26 @@ public class NetPriorInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        OkHttpConfig.v(String.format("NetPriorInterceptor request %s on %s%n%s", request.url(), chain.connection(), request.headers()));
+        LibManager.vInt(String.format("NetPriorInterceptor request %s on %s%n%s", request.url(), chain.connection(), request.headers()));
 
         long time = System.currentTimeMillis();
-        boolean isNetWorkable = OkHttpConfig.isNetConnected();
+        boolean isNetWorkable = LibManager.isNetConnected();
 
-        OkHttpConfig.v("isNetWorkable = " + isNetWorkable);
+        LibManager.vInt("isNetWorkable = " + isNetWorkable);
         if (isNetWorkable) {
             Response response = chain.proceed(request);
-            OkHttpConfig.v(String.format(Locale.CHINA, "NetPriorInterceptor response %s in %dms%n%s", response.request().url(), (System.currentTimeMillis() - time), response.headers()));
+            LibManager.vInt(String.format(Locale.CHINA, "NetPriorInterceptor response %s in %dms%n%s", response.request().url(), (System.currentTimeMillis() - time), response.headers()));
             return response;
         } else {
             Response cacheResponse = CacheManager.getCache(request);
-            OkHttpConfig.v("cacheResponse = " + cacheResponse);
+            LibManager.vInt("cacheResponse = " + cacheResponse);
             if (null == cacheResponse) {
                 return new Response.Builder().request(request)
                         .protocol(Protocol.HTTP_1_1).code(504).message("Unsatisfiable Request (cache is null)").body(Util.EMPTY_RESPONSE)
                         .sentRequestAtMillis(-1L).receivedResponseAtMillis(System.currentTimeMillis())
                         .build();
             } else {
-                OkHttpConfig.v(String.format(Locale.CHINA, "NetPriorInterceptor cacheResponse %s in %dms%n%s", cacheResponse.request().url(), (System.currentTimeMillis() - time), cacheResponse.headers()));
+                LibManager.vInt(String.format(Locale.CHINA, "NetPriorInterceptor cacheResponse %s in %dms%n%s", cacheResponse.request().url(), (System.currentTimeMillis() - time), cacheResponse.headers()));
                 return cacheResponse;
             }
         }

@@ -1,9 +1,9 @@
 package com.yline.http.controller;
 
 import com.google.gson.Gson;
-import com.yline.http.OkHttpConfig;
-import com.yline.http.XHttpAdapter;
-import com.yline.http.cache.CacheManager;
+import com.yline.http.manager.CacheManager;
+import com.yline.http.manager.LibManager;
+import com.yline.http.manager.XHttpAdapter;
 
 import java.io.IOException;
 
@@ -41,7 +41,7 @@ public class HttpDefaultResponse implements ResponseHandlerCallback {
         }
 
         // 提供 http 出口日志
-        OkHttpConfig.d("response = " + responseData);
+        LibManager.vRequest("response = " + responseData);
 
         // 回调处理
         handleSuccess(call, response, clazz, responseData, new ResponseMethodCallback<T>() {

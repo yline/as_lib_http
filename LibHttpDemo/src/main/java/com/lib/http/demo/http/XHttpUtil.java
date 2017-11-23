@@ -4,10 +4,10 @@ import com.lib.http.demo.bean.VNewsMultiplexBean;
 import com.lib.http.demo.bean.VNewsSingleBean;
 import com.lib.http.demo.bean.WNewsMultiplexBean;
 import com.yline.http.OkHttpManager;
-import com.yline.http.XHttp;
-import com.yline.http.XHttpAdapter;
-import com.yline.http.client.HttpCachePriorClient;
-import com.yline.http.client.HttpNetPriorClient;
+import com.yline.http.client.CachePriorClient;
+import com.yline.http.client.NetPriorClient;
+import com.yline.http.manager.XHttp;
+import com.yline.http.manager.XHttpAdapter;
 
 import okhttp3.OkHttpClient;
 
@@ -27,7 +27,7 @@ public class XHttpUtil {
         new XHttp() {
             @Override
             protected OkHttpClient getOkHttpClient() {
-                return HttpNetPriorClient.getInstance();
+                return NetPriorClient.getInstance();
             }
         }.doGet(httpUrl, null, VNewsSingleBean.class, adapter);
     }
@@ -37,7 +37,7 @@ public class XHttpUtil {
         new XHttp() {
             @Override
             protected OkHttpClient getOkHttpClient() {
-                return HttpNetPriorClient.getInstance();
+                return NetPriorClient.getInstance();
             }
         }.doPost(httpUrl, wNewsMultiplexBean, VNewsMultiplexBean.class, adapter);
     }
@@ -47,7 +47,7 @@ public class XHttpUtil {
         new XHttp() {
             @Override
             protected OkHttpClient getOkHttpClient() {
-                return HttpCachePriorClient.getInstance();
+                return CachePriorClient.getInstance();
             }
         }.doGet(httpUrl, null, VNewsSingleBean.class, adapter);
     }
@@ -57,7 +57,7 @@ public class XHttpUtil {
         new XHttp() {
             @Override
             protected OkHttpClient getOkHttpClient() {
-                return HttpCachePriorClient.getInstance();
+                return CachePriorClient.getInstance();
             }
         }.doPost(httpUrl, wNewsMultiplexBean, VNewsMultiplexBean.class, adapter);
     }

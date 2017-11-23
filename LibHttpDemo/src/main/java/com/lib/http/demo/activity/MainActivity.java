@@ -7,7 +7,7 @@ import com.lib.http.demo.bean.VNewsMultiplexBean;
 import com.lib.http.demo.bean.VNewsSingleBean;
 import com.lib.http.demo.bean.WNewsMultiplexBean;
 import com.lib.http.demo.http.XHttpUtil;
-import com.yline.http.XHttpAdapter;
+import com.yline.http.manager.XHttpAdapter;
 import com.yline.test.BaseTestActivity;
 
 import okhttp3.Call;

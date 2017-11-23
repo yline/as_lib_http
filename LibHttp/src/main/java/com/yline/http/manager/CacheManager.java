@@ -1,7 +1,6 @@
-package com.yline.http.cache;
+package com.yline.http.manager;
 
-import com.yline.http.OkHttpConfig;
-import com.yline.http.OkHttpManager;
+import com.yline.http.cache.OkioCache;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,7 +12,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * Http缓存 帮转类
+ * Http缓存 帮助类
  *
  * @author yline 2017/10/19 -- 14:20
  * @version 1.0.0
@@ -22,8 +21,8 @@ public class CacheManager {
     private OkioCache mOkioCache;
 
     private CacheManager() {
-        File dirFile = new File(OkHttpManager.getHttpConfig().getCacheDirPath());
-        long maxSize = OkHttpManager.getHttpConfig().getCacheMaxSize();
+        File dirFile = new File(LibManager.getHttpConfig().getCacheDirPath());
+        long maxSize = LibManager.getHttpConfig().getCacheMaxSize();
         mOkioCache = new OkioCache(dirFile, maxSize);
     }
 
@@ -41,7 +40,7 @@ public class CacheManager {
 
     private Response getCacheStraight(Request request) {
         if (null == mOkioCache || null == request) {
-            OkHttpConfig.i("mOkioCache = " + mOkioCache + ", request = " + request);
+            LibManager.vCache("mOkioCache = " + mOkioCache + ", request = " + request);
             return null;
         }
         return mOkioCache.getResponse(request);
@@ -73,7 +72,7 @@ public class CacheManager {
             // 缓存一份Stream
             cacheStream = new ByteArrayInputStream(baoStream.toByteArray());
             boolean cacheStraightResult = setCacheStraight(response, cacheStream);
-            OkHttpConfig.i("cacheAndReadResponse result is " + cacheStraightResult);
+            LibManager.vCache("cacheAndReadResponse result is " + cacheStraightResult);
 
             // 读取一份Stream
             returnStream = new ByteArrayInputStream(baoStream.toByteArray());
@@ -101,7 +100,7 @@ public class CacheManager {
 
     private boolean setCacheStraight(Response response, InputStream inputStream) {
         if (null == mOkioCache || null == response || null == inputStream) {
-            OkHttpConfig.i("mOkioCache = " + mOkioCache + ", response = " + response + ", inputStream = " + inputStream);
+            LibManager.vCache("mOkioCache = " + mOkioCache + ", response = " + response + ", inputStream = " + inputStream);
             return false;
         }
         return mOkioCache.putResponse(response, inputStream);

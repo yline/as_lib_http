@@ -11,9 +11,9 @@ import java.util.Locale;
  * content 具体信息 目的: "start"、"end"、"number" = number 等类似信息
  * <p>
  * 级别:
- * v 主流程信息
- * d 调试信息
- * i 主流程信息注意级别
+ * vInt 主流程信息
+ * vRequest 调试信息
+ * vCache 主流程信息注意级别
  * w 警告级别
  * e 错误级别
  * <p>

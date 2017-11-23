@@ -4,6 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Okio 储存的 规范类 的局部数据
+ *
+ * @author yline 2017/11/23 -- 19:56
+ * @version 1.0.0
+ */
 public class CacheEntryHeader {
     private final Map<String, String> namesAndValues = new HashMap<>();
 

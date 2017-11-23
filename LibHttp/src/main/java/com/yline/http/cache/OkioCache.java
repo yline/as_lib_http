@@ -2,7 +2,7 @@ package com.yline.http.cache;
 
 import android.text.TextUtils;
 
-import com.yline.http.OkHttpConfig;
+import com.yline.http.manager.LibManager;
 import com.yline.http.util.LogUtil;
 
 import java.io.ByteArrayOutputStream;
@@ -22,6 +22,12 @@ import okio.Buffer;
 import okio.BufferedSink;
 import okio.ByteString;
 
+/**
+ * 缓存 实现类
+ *
+ * @author yline 2017/11/23 -- 19:57
+ * @version 1.0.0
+ */
 public class OkioCache {
     public static final MediaType DEFAULT_MEDIA_TYPE = MediaType.parse("application/json; charset=utf-8");
     public static final int VERSION = 201105;
@@ -43,7 +49,7 @@ public class OkioCache {
     /**
      * return null, if error happened
      */
-    protected Response getResponse(Request request) {
+    public Response getResponse(Request request) {
         DiskLruCache.Snapshot snapshot = null;
         CacheEntry cacheEntry = null;
         try {
@@ -80,7 +86,7 @@ public class OkioCache {
         return response;
     }
 
-    protected boolean putResponse(Response response, InputStream inputStream) {
+    public boolean putResponse(Response response, InputStream inputStream) {
         // 过滤头部，不符合vary的字符“*”
         if (HttpHeaders.hasVaryAll(response)) {
             LogUtil.e("OkioCache hasVaryAll is false");
@@ -131,12 +137,12 @@ public class OkioCache {
     /**
      * 过滤请求方式 -- 请求规则
      */
-    protected String key(Request request) throws IOException {
+    private String key(Request request) throws IOException {
         String key = null;
         String method = request.method();
         if ("GET".equals(method)) {
             key = ByteString.encodeUtf8(request.url().toString()).md5().hex();
-            OkHttpConfig.i("method = GET, key = " + key + ", url = " + request.url().toString() + ", result = null");
+            LibManager.vCache("method = GET, key = " + key + ", url = " + request.url().toString() + ", result = null");
             return key;
         } else if ("POST".equals(method) && DEFAULT_MEDIA_TYPE.equals(request.body().contentType())) {
             RequestBody requestBody = request.body();
@@ -146,10 +152,10 @@ public class OkioCache {
             String result = streamToString(inputStream);
 
             key = ByteString.encodeUtf8(request.url().toString() + result).md5().hex();
-            OkHttpConfig.i("method = POST, key = " + key + ", url = " + request.url().toString() + ", result = " + result);
+            LibManager.vCache("method = POST, key = " + key + ", url = " + request.url().toString() + ", result = " + result);
             return key;
         } else {
-            OkHttpConfig.i("method = " + method + ", key = nul, url = " + request.url().toString() + ", result = null");
+            LibManager.vCache("method = " + method + ", key = nul, url = " + request.url().toString() + ", result = null");
         }
         return key;
     }

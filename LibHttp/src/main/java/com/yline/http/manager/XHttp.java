@@ -1,8 +1,8 @@
-package com.yline.http;
+package com.yline.http.manager;
 
 import com.google.gson.Gson;
 import com.yline.http.cache.OkioCache;
-import com.yline.http.client.HttpDefaultClient;
+import com.yline.http.client.NetPriorClient;
 import com.yline.http.controller.RequestMethodCallback;
 import com.yline.http.controller.ResponseHandlerCallback;
 
@@ -102,7 +102,7 @@ public class XHttp implements RequestMethodCallback {
 
         // get 拼接
         String getHttpUrl = String.format("%s?%s", actionUrl, genGetParamUrl(actionMap));
-        OkHttpConfig.d("get request url = " + getHttpUrl);
+        LibManager.vRequest("get request url = " + getHttpUrl);
 
         builder.url(getHttpUrl);
         return builder;
@@ -140,12 +140,12 @@ public class XHttp implements RequestMethodCallback {
         MultipartBody multipartBody = bodyBuilder.build();
         builder.post(multipartBody);
 
-        OkHttpConfig.d("post request url = " + actionUrl + ", multipartBody size = " + multipartBody.size());
+        LibManager.vRequest("post request url = " + actionUrl + ", multipartBody size = " + multipartBody.size());
         return builder;
     }
 
     private Request.Builder attachJsonBody(String actionUrl, Object jsonParam) {
-        OkHttpConfig.d("post request url = " + actionUrl);
+        LibManager.vRequest("post request url = " + actionUrl);
 
         Request.Builder builder = new Request.Builder();
         builder.url(actionUrl);
@@ -157,7 +157,7 @@ public class XHttp implements RequestMethodCallback {
         } else {
             jsonBody = new Gson().toJson(jsonParam);
         }
-        OkHttpConfig.d("post request body = " + jsonBody);
+        LibManager.vRequest("post request body = " + jsonBody);
         RequestBody requestBody = RequestBody.create(OkioCache.DEFAULT_MEDIA_TYPE, jsonBody);
         builder.post(requestBody);
 
@@ -175,6 +175,6 @@ public class XHttp implements RequestMethodCallback {
     }
 
     protected OkHttpClient getOkHttpClient() {
-        return HttpDefaultClient.getInstance();
+        return NetPriorClient.getInstance();
     }
 }

@@ -1,4 +1,4 @@
-package com.yline.http;
+package com.yline.http.manager;
 
 import android.util.Log;
 
@@ -22,7 +22,7 @@ public abstract class XHttpAdapter<Result> implements ResponseHandlerConfigCallb
 
     @Override
     public void onFailure(Call call, Exception ex) {
-        OkHttpConfig.d("onFailure net exception happened, exception = " + Log.getStackTraceString(ex));
+        LibManager.vRequest("onFailure net exception happened, exception = " + Log.getStackTraceString(ex));
     }
 
     @Override

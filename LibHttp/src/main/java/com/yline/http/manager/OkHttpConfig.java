@@ -1,6 +1,5 @@
-package com.yline.http;
+package com.yline.http.manager;
 
-import android.net.NetworkInfo;
 import android.os.Environment;
 
 import com.yline.http.util.LogUtil;
@@ -29,50 +28,6 @@ public class OkHttpConfig {
 
         LogUtil.setUtilLog(true);
         LogUtil.setUtilLogLocation(true);
-    }
-
-    /**
-     * 拦截器日志使用
-     */
-    public static void v(String content) {
-        if (OkHttpManager.getHttpConfig().isInterceptorDebug()) {
-            LogUtil.v(content, LogUtil.LOG_LOCATION_PARENT);
-        }
-    }
-
-    /**
-     * 缓存日志 使用
-     */
-    public static void i(String content) {
-        if (OkHttpManager.getHttpConfig().isCacheDebug()) {
-            LogUtil.i(content, LogUtil.LOG_LOCATION_PARENT);
-        }
-    }
-
-    /**
-     * 网络请求，入口出口使用
-     */
-    public static void d(String content) {
-        if (OkHttpManager.getHttpConfig().isRequestDebug()) {
-            LogUtil.v(content, LogUtil.LOG_LOCATION_PARENT);
-        }
-    }
-
-    /**
-     * 判断网络是否连接
-     */
-    public static boolean isNetConnected() {
-        if (null != OkHttpManager.getConnectivityManager()) {
-            NetworkInfo networkInfo = OkHttpManager.getConnectivityManager().getActiveNetworkInfo();
-            if (null != networkInfo) {
-                return (networkInfo.getType() != -1);
-            } else {
-                return false;
-            }
-        } else {
-            LogUtil.e("isNetConnected mConnectivityManager is null");
-            return false;
-        }
     }
 
     public boolean isRequestDebug() {

@@ -1,6 +1,6 @@
 package com.yline.http.controller;
 
-import com.yline.http.XHttpAdapter;
+import com.yline.http.manager.XHttpAdapter;
 
 import java.util.Map;
 

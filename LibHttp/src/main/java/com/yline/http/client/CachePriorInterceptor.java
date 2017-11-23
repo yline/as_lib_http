@@ -1,7 +1,7 @@
-package com.yline.http.interceptor;
+package com.yline.http.client;
 
-import com.yline.http.OkHttpConfig;
-import com.yline.http.cache.CacheManager;
+import com.yline.http.manager.CacheManager;
+import com.yline.http.manager.LibManager;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -25,17 +25,17 @@ public class CachePriorInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        OkHttpConfig.v(String.format("CachePriorInterceptor request %s on %s%n%s", request.url(), chain.connection(), request.headers()));
+        LibManager.vInt(String.format("CachePriorInterceptor request %s on %s%n%s", request.url(), chain.connection(), request.headers()));
 
         long time = System.currentTimeMillis();
         Response cacheResponse = CacheManager.getCache(request);
-        OkHttpConfig.v("cacheResponse = " + cacheResponse);
+        LibManager.vInt("cacheResponse = " + cacheResponse);
         if (null == cacheResponse) {
             Response response = chain.proceed(request);
-            OkHttpConfig.v(String.format(Locale.CHINA, "CachePriorInterceptor response %s in %dms%n%s", response.request().url(), (System.currentTimeMillis() - time), response.headers()));
+            LibManager.vInt(String.format(Locale.CHINA, "CachePriorInterceptor response %s in %dms%n%s", response.request().url(), (System.currentTimeMillis() - time), response.headers()));
             return response;
         } else {
-            OkHttpConfig.v(String.format(Locale.CHINA, "CachePriorInterceptor cacheResponse %s in %dms%n%s", cacheResponse.request().url(), (System.currentTimeMillis() - time), cacheResponse.headers()));
+            LibManager.vInt(String.format(Locale.CHINA, "CachePriorInterceptor cacheResponse %s in %dms%n%s", cacheResponse.request().url(), (System.currentTimeMillis() - time), cacheResponse.headers()));
             return cacheResponse;
         }
     }
