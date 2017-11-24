@@ -40,7 +40,7 @@ public class CacheManager {
 
     private Response getCacheStraight(Request request) {
         if (null == mOkioCache || null == request) {
-            LibManager.vCache("mOkioCache = " + mOkioCache + ", request = " + request);
+            LibManager.eCache("mOkioCache = " + mOkioCache + ", request = " + request);
             return null;
         }
         return mOkioCache.getResponse(request);
@@ -100,7 +100,7 @@ public class CacheManager {
 
     private boolean setCacheStraight(Response response, InputStream inputStream) {
         if (null == mOkioCache || null == response || null == inputStream) {
-            LibManager.vCache("mOkioCache = " + mOkioCache + ", response = " + response + ", inputStream = " + inputStream);
+            LibManager.eCache("mOkioCache = " + mOkioCache + ", response = " + response + ", inputStream = " + inputStream);
             return false;
         }
         return mOkioCache.putResponse(response, inputStream);

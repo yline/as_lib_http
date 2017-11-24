@@ -29,8 +29,8 @@ public class CachePriorInterceptor implements Interceptor {
 
         long time = System.currentTimeMillis();
         Response cacheResponse = CacheManager.getCache(request);
-        LibManager.vInt("cacheResponse = " + cacheResponse);
         if (null == cacheResponse) {
+            LibManager.vInt("CachePriorInterceptor cacheResponse is null");
             Response response = chain.proceed(request);
             LibManager.vInt(String.format(Locale.CHINA, "CachePriorInterceptor response %s in %dms%n%s", response.request().url(), (System.currentTimeMillis() - time), response.headers()));
             return response;

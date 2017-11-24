@@ -155,9 +155,9 @@ public class OkioCache {
             LibManager.vCache("method = POST, key = " + key + ", url = " + request.url().toString() + ", result = " + result);
             return key;
         } else {
-            LibManager.vCache("method = " + method + ", key = nul, url = " + request.url().toString() + ", result = null");
+            LibManager.eCache("method = " + method + ", key = nul, url = " + request.url().toString() + ", result = null");
         }
-        return key;
+        return null;
     }
 
     private String streamToString(InputStream inputStream) throws IOException {

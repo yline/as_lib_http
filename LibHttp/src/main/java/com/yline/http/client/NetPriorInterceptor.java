@@ -39,8 +39,8 @@ public class NetPriorInterceptor implements Interceptor {
             return response;
         } else {
             Response cacheResponse = CacheManager.getCache(request);
-            LibManager.vInt("cacheResponse = " + cacheResponse);
             if (null == cacheResponse) {
+                LibManager.vInt("NetPriorInterceptor cacheResponse is null");
                 return new Response.Builder().request(request)
                         .protocol(Protocol.HTTP_1_1).code(504).message("Unsatisfiable Request (cache is null)").body(Util.EMPTY_RESPONSE)
                         .sentRequestAtMillis(-1L).receivedResponseAtMillis(System.currentTimeMillis())

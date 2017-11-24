@@ -1,7 +1,5 @@
 package com.yline.http.manager;
 
-import android.util.Log;
-
 import com.yline.http.controller.HttpDefaultResponse;
 import com.yline.http.controller.ResponseHandlerCallback;
 import com.yline.http.controller.ResponseHandlerConfigCallback;
@@ -22,7 +20,8 @@ public abstract class XHttpAdapter<Result> implements ResponseHandlerConfigCallb
 
     @Override
     public void onFailure(Call call, Exception ex) {
-        LibManager.vRequest("onFailure net exception happened, exception = " + Log.getStackTraceString(ex));
+        String content = String.format("onFailure, tag{method=%s, url=%s, tag=%s}, exception", call.request().method(), call.request().url(), call.request().tag());
+        LibManager.eRequest(content, ex);
     }
 
     @Override

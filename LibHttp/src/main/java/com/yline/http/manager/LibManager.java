@@ -61,12 +61,24 @@ public class LibManager {
         }
     }
 
+    public static void eCache(String content) {
+        if (LibManager.getHttpConfig().isCacheDebug()) {
+            LogUtil.e(content, LogUtil.LOG_LOCATION_PARENT);
+        }
+    }
+
     /**
      * 网络请求，入口出口使用
      */
     public static void vRequest(String content) {
         if (LibManager.getHttpConfig().isRequestDebug()) {
             LogUtil.v(content, LogUtil.LOG_LOCATION_PARENT);
+        }
+    }
+
+    public static void eRequest(String content, Throwable ex) {
+        if (LibManager.getHttpConfig().isRequestDebug()) {
+            LogUtil.e(content, LogUtil.LOG_LOCATION_PARENT, ex);
         }
     }
 

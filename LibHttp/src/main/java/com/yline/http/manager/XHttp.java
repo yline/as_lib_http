@@ -18,6 +18,12 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class XHttp implements RequestMethodCallback {
+    protected String mTag;
+
+    public XHttp() {
+        this.mTag = String.valueOf(System.currentTimeMillis());
+    }
+
     @Override
     public <T> void doGet(String actionUrl, Map<String, Object> actionMap, final Class<T> clazz, XHttpAdapter<T> adapter) {
         OkHttpClient okHttpClient = getOkHttpClient();  // 配置Client
@@ -102,7 +108,7 @@ public class XHttp implements RequestMethodCallback {
 
         // get 拼接
         String getHttpUrl = String.format("%s?%s", actionUrl, genGetParamUrl(actionMap));
-        LibManager.vRequest("get request url = " + getHttpUrl);
+        LibManager.vRequest("get request url = " + getHttpUrl + ", tag = " + mTag);
 
         builder.url(getHttpUrl);
         return builder;
@@ -140,12 +146,12 @@ public class XHttp implements RequestMethodCallback {
         MultipartBody multipartBody = bodyBuilder.build();
         builder.post(multipartBody);
 
-        LibManager.vRequest("post request url = " + actionUrl + ", multipartBody size = " + multipartBody.size());
+        LibManager.vRequest("post request url = " + actionUrl + ", multipartBody size = " + multipartBody.size() + ", tag = " + mTag);
         return builder;
     }
 
     private Request.Builder attachJsonBody(String actionUrl, Object jsonParam) {
-        LibManager.vRequest("post request url = " + actionUrl);
+        LibManager.vRequest("post request url = " + actionUrl + ", tag = " + mTag);
 
         Request.Builder builder = new Request.Builder();
         builder.url(actionUrl);
@@ -171,7 +177,7 @@ public class XHttp implements RequestMethodCallback {
      * 丢给子类 实现更多功能; 也可以覆盖父类的功能
      */
     protected void onRequestBuilder(Request.Builder builder) {
-        // TODO
+        builder.tag(mTag);
     }
 
     protected OkHttpClient getOkHttpClient() {
