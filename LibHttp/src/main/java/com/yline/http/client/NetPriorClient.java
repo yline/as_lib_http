@@ -6,6 +6,7 @@ import okhttp3.OkHttpClient;
 
 /**
  * 按照 网络优先的 规则
+ * 有网络 -- 读取网络
  * 无网络 -- 读取缓存 -- 无缓存 -- 返回失败
  *
  * @author yline 2017/2/28 -- 17:29
