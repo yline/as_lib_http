@@ -144,7 +144,7 @@ public class OkioCache {
             key = ByteString.encodeUtf8(request.url().toString()).md5().hex();
             LibManager.vCache("method = GET, key = " + key + ", url = " + request.url().toString() + ", result = null");
             return key;
-        } else if ("POST".equals(method) && DEFAULT_MEDIA_TYPE.equals(request.body().contentType())) {
+        } else if ("POST".equals(method) && (DEFAULT_MEDIA_TYPE.equals(request.body().contentType()))) {
             RequestBody requestBody = request.body();
             BufferedSink sink = new Buffer();
             requestBody.writeTo(sink);
@@ -155,7 +155,7 @@ public class OkioCache {
             LibManager.vCache("method = POST, key = " + key + ", url = " + request.url().toString() + ", result = " + result);
             return key;
         } else {
-            LibManager.eCache("method = " + method + ", key = nul, url = " + request.url().toString() + ", result = null");
+            LibManager.eCache(String.format("Request{method=%s, url=%s, tag=%s}, contentType=%s", method, request.url().toString(), request.tag(), request.body().contentType()));
         }
         return null;
     }

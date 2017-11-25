@@ -1,4 +1,4 @@
-package com.lib.http.demo.activity;
+package com.lib.http.demo;
 
 import android.app.Application;
 

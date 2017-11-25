@@ -1,6 +1,6 @@
-package com.lib.http.demo.bean;
+package com.lib.http.demo.model;
 
-public class WNewsMultiplexBean
+public class WNewsMultiplexModel
 {
 	/**
 	 * 请求新闻开始号
@@ -12,7 +12,7 @@ public class WNewsMultiplexBean
 	 */
 	private int length;
 
-	public WNewsMultiplexBean(int num1, int length)
+	public WNewsMultiplexModel(int num1, int length)
 	{
 		this.num1 = num1;
 		this.length = length;

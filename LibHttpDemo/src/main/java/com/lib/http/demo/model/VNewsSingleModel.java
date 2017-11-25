@@ -1,6 +1,6 @@
-package com.lib.http.demo.bean;
+package com.lib.http.demo.model;
 
-public class VNewsSingleBean
+public class VNewsSingleModel
 {
 	/* 新闻ID标识 */
 	private String news_id;
@@ -83,7 +83,7 @@ public class VNewsSingleBean
 	@Override
 	public String toString()
 	{
-		return "VNewsSingleBean{" +
+		return "VNewsSingleModel{" +
 				"news_id='" + news_id + '\'' +
 				", news_img='" + news_img + '\'' +
 				", news_source='" + news_source + '\'' +

@@ -1,6 +1,10 @@
-package com.yline.http.controller;
+package com.lib.http.demo.download;
 
 import com.google.gson.Gson;
+import com.yline.http.controller.HttpDefaultHandler;
+import com.yline.http.controller.ResponseHandlerCallback;
+import com.yline.http.controller.ResponseHandlerConfigCallback;
+import com.yline.http.controller.ResponseMethodCallback;
 import com.yline.http.manager.CacheManager;
 import com.yline.http.manager.LibManager;
 import com.yline.http.manager.XHttpAdapter;
@@ -11,19 +15,19 @@ import okhttp3.Call;
 import okhttp3.Response;
 
 /**
- * Http 统一处理类
+ * 用于文件下载
  *
- * @author yline 2017/10/23 -- 20:07
+ * @author yline 2017/11/24 -- 19:46
  * @version 1.0.0
  */
-public class HttpDefaultResponse implements ResponseHandlerCallback {
+public class HttpDownloadResponse implements ResponseHandlerCallback {
     private static final int MAX_LOG_SIZE = 1024;
 
     protected ResponseHandlerConfigCallback mResponseConfig;
     protected ResponseMethodCallback mResponseCallback;
     private HttpDefaultHandler mHttpHandler;
 
-    public HttpDefaultResponse(XHttpAdapter adapter) {
+    public HttpDownloadResponse(XHttpAdapter adapter) {
         this.mResponseCallback = adapter;
         this.mResponseConfig = adapter;
 
@@ -34,6 +38,8 @@ public class HttpDefaultResponse implements ResponseHandlerCallback {
 
     @Override
     public <T> void handleSuccess(Call call, Response response, Class<T> clazz) throws IOException {
+
+
         // 实现缓存策略
         String responseData;
         if (mResponseConfig.isResponseCache()) {
