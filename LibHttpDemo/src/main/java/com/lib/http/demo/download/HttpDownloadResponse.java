@@ -1,15 +1,19 @@
 package com.lib.http.demo.download;
 
-import com.google.gson.Gson;
+import android.text.TextUtils;
+
 import com.yline.http.controller.HttpDefaultHandler;
 import com.yline.http.controller.ResponseHandlerCallback;
 import com.yline.http.controller.ResponseHandlerConfigCallback;
 import com.yline.http.controller.ResponseMethodCallback;
-import com.yline.http.manager.CacheManager;
 import com.yline.http.manager.LibManager;
 import com.yline.http.manager.XHttpAdapter;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 
 import okhttp3.Call;
 import okhttp3.Response;
@@ -21,8 +25,6 @@ import okhttp3.Response;
  * @version 1.0.0
  */
 public class HttpDownloadResponse implements ResponseHandlerCallback {
-    private static final int MAX_LOG_SIZE = 1024;
-
     protected ResponseHandlerConfigCallback mResponseConfig;
     protected ResponseMethodCallback mResponseCallback;
     private HttpDefaultHandler mHttpHandler;
@@ -38,36 +40,29 @@ public class HttpDownloadResponse implements ResponseHandlerCallback {
 
     @Override
     public <T> void handleSuccess(Call call, Response response, Class<T> clazz) throws IOException {
+        Object tagModel = call.request().tag();
+        LibManager.vRequest("download response = " + tagModel);
+        if (tagModel instanceof DownloadModel) {
+            File storeFile = judgeStoreFile(((DownloadModel) tagModel).getStoreDirPath(), ((DownloadModel) tagModel).getStoreFileName(), true);
+            if (null != storeFile) {
+                InputStream inputStream = response.body().byteStream();
+                FileOutputStream fileOutputStream = new FileOutputStream(storeFile);
 
+                int len;
+                byte[] buffer = new byte[2048];
+                while ((len = inputStream.read(buffer)) != -1) {
+                    fileOutputStream.write(buffer, 0, len);
+                }
 
-        // 实现缓存策略
-        String responseData;
-        if (mResponseConfig.isResponseCache()) {
-            responseData = CacheManager.setCache(response);
-        } else {
-            responseData = response.body().string();
-        }
+                fileOutputStream.close();
 
-        // 提供 http 出口日志
-        if (null != responseData && responseData.length() > MAX_LOG_SIZE) {
-            LibManager.vRequest("response = " + responseData.substring(0, MAX_LOG_SIZE));
-        } else {
-            LibManager.vRequest("response = " + responseData);
-        }
-
-
-        // 回调处理
-        handleSuccess(call, response, clazz, responseData, new ResponseMethodCallback<T>() {
-            @Override
-            public void onSuccess(Call call, Response response, T t) {
-                sendSuccess(call, response, t);
+                sendSuccess(call, response, null);
+            } else {
+                sendFailure(call, new IOException("传入的数据错误，储存文件为空"));
             }
-
-            @Override
-            public void onFailure(Call call, Exception ex) {
-                sendFailure(call, ex);
-            }
-        });
+        } else {
+            sendFailure(call, new IOException("传入的数据类型错误，暂不支持该数据类型的文件下载"));
+        }
     }
 
     @Override
@@ -75,33 +70,6 @@ public class HttpDownloadResponse implements ResponseHandlerCallback {
         sendFailure(call, ex);
     }
 
-    /**
-     * 提供 请求成功单独处理的方法； 例如大部分的情况需要外面加上"一层基础数据"
-     * 该方法在子线程内，因此避免了主线程执行
-     *
-     * @param call             OKHttp自带 请求参数
-     * @param response         OKHttp自带 返回数据
-     * @param clazz            返回数据的结构体
-     * @param responseData     返回数据字符串
-     * @param responseCallback Handler处理回调
-     * @param <T>              返回数据的结构体
-     * @throws IOException IO数据异常
-     */
-    protected <T> void handleSuccess(Call call, Response response, Class<T> clazz, String responseData, ResponseMethodCallback<T> responseCallback) throws IOException {
-        try {
-            if (null == clazz) {
-                responseCallback.onSuccess(call, response, null);
-            } else if (clazz == String.class) {
-                responseCallback.onSuccess(call, response, clazz.cast(responseData));
-            } else {
-                // json 解析 -> 返回数据
-                T result = new Gson().fromJson(responseData, clazz);
-                responseCallback.onSuccess(call, response, result);
-            }
-        } catch (Exception e) {
-            responseCallback.onFailure(call, e);
-        }
-    }
 
     private <T> void sendSuccess(final Call call, final Response response, final T result) {
         if (mResponseConfig.isResponseHandler()) {
@@ -127,5 +95,48 @@ public class HttpDownloadResponse implements ResponseHandlerCallback {
         } else {
             mResponseCallback.onFailure(call, ex);
         }
+    }
+
+    private File judgeStoreFile(String dirPath, String fileName, boolean isResetIfExist) {
+        if (TextUtils.isEmpty(dirPath) || TextUtils.isEmpty(fileName)) {
+            LibManager.eRequest("dir:" + dirPath + ",fileName:" + fileName, new Exception("saveStoreFile dirPath or fileName is null"));
+            return null;
+        }
+
+        // 父目录
+        File storeDir = new File(dirPath);
+        if (!storeDir.exists()) {
+            if (!storeDir.mkdir()) {
+                LibManager.eRequest("", new Exception("saveStoreFile storeDir create failed"));
+                return null;
+            }
+        }
+
+        // 文件
+        File storeFile = new File(storeDir, fileName);
+        if (!storeFile.exists()) {
+            try {
+                if (storeFile.createNewFile()) {
+                    return storeFile;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        if (isResetIfExist) {
+            try {
+                FileWriter fileWriter = new FileWriter(storeFile);
+                fileWriter.write("");
+                fileWriter.flush();
+                fileWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        return storeFile;
     }
 }
