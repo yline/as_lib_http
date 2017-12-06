@@ -7,6 +7,7 @@ import com.lib.http.demo.download.DownloadActivity;
 import com.lib.http.demo.model.VNewsMultiplexModel;
 import com.lib.http.demo.model.VNewsSingleModel;
 import com.lib.http.demo.model.WNewsMultiplexModel;
+import com.lib.http.demo.parse.ParseActivity;
 import com.lib.http.demo.util.XHttpUtil;
 import com.yline.http.manager.XHttpAdapter;
 import com.yline.test.BaseTestActivity;
@@ -93,6 +94,13 @@ public class MainActivity extends BaseTestActivity {
             @Override
             public void onClick(View v) {
                 DownloadActivity.launcher(MainActivity.this);
+            }
+        });
+
+        addButton("Parse Text", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ParseActivity.launcher(MainActivity.this);
             }
         });
     }

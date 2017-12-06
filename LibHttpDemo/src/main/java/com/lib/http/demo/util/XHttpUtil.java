@@ -22,7 +22,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class XHttpUtil {
-    private static final String IP = "192.168.0.113";
+    private static final String IP = "192.168.2.184";
 
     public static void doGetDefault(XHttpAdapter<VNewsSingleModel> adapter) {
         String httpUrl = "http://" + IP + "/android/git_api/libhttp/puppet_list.txt";
