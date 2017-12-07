@@ -1,6 +1,4 @@
-package com.lib.http.demo.parse;
-
-import com.lib.http.demo.parse.model.BitTorrentModel;
+package com.lib.http.demo.parse.model;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -11,8 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 负责将，mInputStream 转换成 BitTorrentObject
+ *
+ * @author yline 2017/12/6 -- 16:04
+ * @version 1.0.0
+ */
 class BitTorrentParser {
-    private final InputStream mInput;
+    private final InputStream mInputStream;
 
     // Zero 未知类型
     // '0'..'9' 表示是byte[]数组也就是字符串类型.
@@ -24,23 +28,33 @@ class BitTorrentParser {
     // 调用getNextIndicator接口获取当前的值
     private int mIndicator = 0;
 
-    BitTorrentParser(InputStream in) {
-        mInput = in;
+    private BitTorrentParser(InputStream in) {
+        mInputStream = in;
     }
 
-    BitTorrentModel getBitTorrentModel() throws IOException {
+    static BitTorrentObject getParseResult(InputStream inputStream) throws IOException {
+        return new BitTorrentParser(inputStream).getBitTorrentModel();
+    }
+
+    /**
+     * 通过 递归回调的方式，进行一次性的解析
+     *
+     * @return BitTorrent文件所有数据
+     * @throws IOException 解析异常
+     */
+    private BitTorrentObject getBitTorrentModel() throws IOException {
         if (getNextIndicator() == -1) {
             return null;
         }
 
         if (mIndicator >= '0' && mIndicator <= '9') {
-            return btParseBytes();     //read string
+            return getParseBytes();     //read string
         } else if (mIndicator == 'i') {
-            return btParseNumber();    // read integer
+            return getParseNumber();    // read integer
         } else if (mIndicator == 'l') {
-            return btParseList();      // read list
+            return getParseList();      // read list
         } else if (mIndicator == 'd') {
-            return btParseMap();       // read Map
+            return getParseMap();       // read Map
         } else {
             throw new IOException("Unknown indicator '" + mIndicator + "'");
         }
@@ -53,13 +67,14 @@ class BitTorrentParser {
      * 3. 根据读取到的字符数组构建BitTorrentModel对象
      * 对应bt文件的 4:ptgh 字符串格式
      */
-    private BitTorrentModel btParseBytes() throws IOException {
+    private BitTorrentObject getParseBytes() throws IOException {
         int b = getNextIndicator();
         int num = b - '0';
         if (num < 0 || num > 9) {
             throw new IOException("parse bytes(String) error: not '" + (char) b + "'");
         }
         mIndicator = 0;
+
         b = read();
         int i = b - '0';
         while (i >= 0 && i <= 9) {
@@ -67,10 +82,11 @@ class BitTorrentParser {
             b = read();
             i = b - '0';
         }
+
         if (b != ':') {
             throw new IOException("Colon error: not '" + (char) b + "'");
         }
-        return new BitTorrentModel(read(num));
+        return new BitTorrentObject(read(num));
     }
 
     /**
@@ -81,7 +97,7 @@ class BitTorrentParser {
      * 4. 有chars数组生成数字, 并生成BitTorrentModel对象
      * 对应bt文件的 i5242e 数字格式
      */
-    private BitTorrentModel btParseNumber() throws IOException {
+    private BitTorrentObject getParseNumber() throws IOException {
         int b = getNextIndicator();
         if (b != 'i') {
             throw new IOException("parse number error: not '" + (char) b + "'");
@@ -92,7 +108,7 @@ class BitTorrentParser {
         if (b == '0') {
             b = read();
             if (b == 'e') {
-                return new BitTorrentModel(BigInteger.ZERO);
+                return new BitTorrentObject(BigInteger.ZERO);
             } else {
                 throw new IOException("'e' expected after zero," + " not '" + (char) b + "'");
             }
@@ -133,7 +149,7 @@ class BitTorrentParser {
         }
 
         String s = new String(chars, 0, offset);
-        return new BitTorrentModel(new BigInteger(s));
+        return new BitTorrentObject(new BigInteger(s));
     }
 
     /**
@@ -144,15 +160,14 @@ class BitTorrentParser {
      * 对应bt文件的 l4:spam4:tease 格式
      * 如果是 l4:spam4:tease 那么 list对象包含两个BitTorrentModel对象, 分别为 spam 和 tease 字符串
      */
-    private BitTorrentModel btParseList() throws IOException {
+    private BitTorrentObject getParseList() throws IOException {
         int b = getNextIndicator();
         if (b != 'l') {
             throw new IOException("Expected 'l', not '" + (char) b + "'");
         }
-
         mIndicator = 0;
 
-        List<BitTorrentModel> result = new ArrayList<>();
+        List<BitTorrentObject> result = new ArrayList<>();
         b = getNextIndicator();
         while (b != 'e') {
             result.add(getBitTorrentModel());
@@ -160,7 +175,7 @@ class BitTorrentParser {
         }
         mIndicator = 0;
 
-        return new BitTorrentModel(result);
+        return new BitTorrentObject(result);
     }
 
     /**
@@ -170,30 +185,33 @@ class BitTorrentParser {
      * 3. 使用获得的Map对象构造BitTorrentModel对象(这时代表了Map)
      * 对应bt文件的 <d> <key String> <value content> <e>格式
      */
-    private BitTorrentModel btParseMap() throws IOException {
+    private BitTorrentObject getParseMap() throws IOException {
         int b = getNextIndicator();
         if (b != 'd') {
             throw new IOException("Expected 'd', not '" + (char) b + "'");
         }
         mIndicator = 0;
 
-        Map<String, BitTorrentModel> result = new HashMap<>();
+        Map<String, BitTorrentObject> result = new HashMap<>();
         b = getNextIndicator();
         while (b != 'e') {
             // Dictionary keys are always strings
-            String key = getBitTorrentModel().getString();
-            BitTorrentModel value = getBitTorrentModel();
-            result.put(key, value);
+            BitTorrentObject mapModel = getBitTorrentModel();
+            if (null != mapModel) {
+                String key = mapModel.getString();
 
-            b = getNextIndicator();
+                BitTorrentObject value = getBitTorrentModel();
+                result.put(key, value);
+                b = getNextIndicator();
+            }
         }
         mIndicator = 0;
-        return new BitTorrentModel(result);
+        return new BitTorrentObject(result);
     }
 
     private int getNextIndicator() throws IOException {
         if (mIndicator == 0) {
-            mIndicator = mInput.read();
+            mIndicator = mInputStream.read();
         }
         return mIndicator;
     }
@@ -202,7 +220,7 @@ class BitTorrentParser {
      * 从输入流读取一个数据
      */
     private int read() throws IOException {
-        int b = mInput.read();
+        int b = mInputStream.read();
         if (b == -1) {
             throw new EOFException();
         }
@@ -217,7 +235,7 @@ class BitTorrentParser {
 
         int read = 0;
         while (read < length) {
-            int i = mInput.read(result, read, length - read);
+            int i = mInputStream.read(result, read, length - read);
             if (i == -1) {
                 throw new EOFException();
             }
