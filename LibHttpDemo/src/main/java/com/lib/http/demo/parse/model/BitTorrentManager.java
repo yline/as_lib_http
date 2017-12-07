@@ -8,11 +8,15 @@ import java.util.Map;
 
 /**
  * BitTorrent解析
+ * MAGNet生成
  *
  * @author yline 2017/12/6 -- 13:49
  * @version 1.0.0
  */
 public class BitTorrentManager {
+    private static final int SINGLE_PIECE_HASH = 20; // 单个片段，的hash值的长度
+    private static final char[] DIGITS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'}; // byte 解析成 hex
+
     private static final String TOP_ANNOUNCE = "announce";
     private static final String TOP_ANNOUNCE_LIST = "announce-list";
     private static final String TOP_COMMENT = "comment";
@@ -40,46 +44,37 @@ public class BitTorrentManager {
     private BitTorrentManager() {
     }
 
-//    /**
-//     * 加载指定的种子文件, 将种子文件转化为Torrent对象
-//     */
-//    public static BitTorrentManager load(File torrent) throws IOException {
-//        byte[] data = readFileToByteArray(torrent);
-//        return new BitTorrentManager(data);
-//    }
-//
-//    public static BitTorrentManager load(InputStream inputStream) throws IOException {
-//        return new BitTorrentManager(inputStream);
-//    }
-//
-//    /**
-//     * 由file对象获得byte[]对象
-//     */
-//    private static byte[] readFileToByteArray(File file) {
-//        byte[] buffer = null;
-//        try {
-//            FileInputStream fis = new FileInputStream(file);
-//            ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
-//            byte[] b = new byte[1024];
-//            int n;
-//            while ((n = fis.read(b)) != -1) {
-//                bos.write(b, 0, n);
-//            }
-//            fis.close();
-//            bos.close();
-//            buffer = bos.toByteArray();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return buffer;
-//    }
-
-    //    public BitTorrentManager(byte[] torrent) throws IOException {
-//        this(new ByteArrayInputStream(torrent));
-//    }
-
     public static BitTorrentModel load(InputStream inputStream) throws IOException {
         return new BitTorrentManager().expressionBitTorrent(inputStream);
+    }
+
+    public static String genMagnet(BitTorrentModel torrentModel) {
+        StringBuilder stringBuilder = new StringBuilder("magnet:?xt=urn:");
+        stringBuilder.append("btih:");
+        stringBuilder.append(torrentModel.getInfoPieceList().get(0));
+
+        stringBuilder.append("&dn=");
+        stringBuilder.append(torrentModel.getInfoName());
+
+        List<String> fileUrlList = torrentModel.getAnnounceList();
+        for (String url : fileUrlList) {
+            stringBuilder.append("&tr=");
+            stringBuilder.append(url);
+        }
+        return stringBuilder.toString();
+    }
+
+    private static String byte2HexString(byte[] bytes, int start, int length) {
+        if (bytes.length < length) {
+            return "";
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = start; i < start + length; i++) {
+            stringBuilder.append(DIGITS[(bytes[i] & 0xf0) >> 4]); // 高4位
+            stringBuilder.append(DIGITS[(bytes[i] & 0x0f)]); // 低4位
+        }
+        return stringBuilder.toString();
     }
 
     private BitTorrentModel expressionBitTorrent(InputStream inputStream) throws IOException {
@@ -145,6 +140,29 @@ public class BitTorrentManager {
             Map<String, BitTorrentObject> infoMap = topMap.get(TOP_INFO).getMap();
             expressionResult.setInfoKeySet(infoMap.keySet());
 
+//            // --> info[SHA]
+//            ByteArrayOutputStream byteArrayOutputStream = null;
+//            ObjectOutputStream objectOutputStream = null;
+//            try {
+//                byteArrayOutputStream = new ByteArrayOutputStream();
+//                objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+//                objectOutputStream.writeObject(infoMap);
+//
+//                MessageDigest sha = MessageDigest.getInstance("SHA");
+//                sha.update(byteArrayOutputStream.toByteArray());
+//                String shaString = Base64.encodeToString(sha.digest(), Base64.DEFAULT);
+//                LogUtil.v("shaString = " + shaString);
+//            } catch (NoSuchAlgorithmException e) {
+//                e.printStackTrace();
+//            } finally {
+//                if (null != byteArrayOutputStream) {
+//                    byteArrayOutputStream.close();
+//                }
+//                if (null != objectOutputStream) {
+//                    objectOutputStream.close();
+//                }
+//            }
+
             // --> info --> name
             String infoName = infoMap.containsKey(INFO_NAME) ? infoMap.get(INFO_NAME).getString(encoding) : null;
             expressionResult.setInfoName(infoName);
@@ -159,7 +177,14 @@ public class BitTorrentManager {
 
             // --> info --> pieces  [文件的特征信息，该字段比较大，实际上是种子内包含所有的文件段的SHA1的校验值的连接]
             byte[] infoPiece = infoMap.containsKey(INFO_PIECE) ? infoMap.get(INFO_PIECE).getBytes() : null;
-            expressionResult.setInfoPiece(infoPiece);
+            List<String> infoPieceList = new ArrayList<>();
+            if (null != infoPiece) {
+                long pieceSize = infoPiece.length / SINGLE_PIECE_HASH;
+                for (int i = 0; i < pieceSize; i++) {
+                    infoPieceList.add(byte2HexString(infoPiece, i * SINGLE_PIECE_HASH, SINGLE_PIECE_HASH));
+                }
+            }
+            expressionResult.setInfoPieceList(infoPieceList);
 
             // --> info --> publisher
             String infoPublisher = infoMap.containsKey(INFO_PUBLISHER) ? infoMap.get(INFO_PUBLISHER).getString(encoding) : null;

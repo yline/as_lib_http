@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +96,6 @@ class BitTorrentObject {
     }
 
     public Map<String, BitTorrentObject> getMap() throws ClassCastException {
-        return (Map<String, BitTorrentObject>) mValue;
+        return (HashMap<String, BitTorrentObject>) mValue;
     }
 }

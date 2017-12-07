@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.lib.http.demo.parse.model.BitTorrentManager;
 import com.lib.http.demo.parse.model.BitTorrentModel;
 import com.yline.test.BaseTestActivity;
+import com.yline.utils.LogUtil;
 import com.yline.utils.UIScreenUtil;
 
 import java.io.IOException;
@@ -43,8 +44,15 @@ public class ParseActivity extends BaseTestActivity {
                     InputStream inputStream = getResources().getAssets().open("test.torrent");
                     BitTorrentModel torrent = BitTorrentManager.load(inputStream);
 
-                    String result = torrent.print();
-                    hintTextView.setText(result);
+                    if (null != torrent) {
+                        String result = torrent.print();
+                        hintTextView.setText(result);
+
+                        String magnet = BitTorrentManager.genMagnet(torrent);
+                        LogUtil.v("magnet = " + magnet);
+                    } else {
+                        LogUtil.v("torrent is null");
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -29,7 +29,7 @@ public class BitTorrentModel implements Serializable {
     private String infoName;
     private String infoNameUtf8;
     private long infoPieceLength;
-    private byte[] infoPiece;
+    private List<String> infoPieceList; // SHA1值，具有很多个，个数与片段个数相同
     private String infoPublisher;
     private String infoPublisherUrl;
     private String infoPublisherUrlUtf8;
@@ -77,12 +77,12 @@ public class BitTorrentModel implements Serializable {
         this.infoPieceLength = infoPieceLength;
     }
 
-    public byte[] getInfoPiece() {
-        return infoPiece;
+    public List<String> getInfoPieceList() {
+        return infoPieceList;
     }
 
-    public void setInfoPiece(byte[] infoPiece) {
-        this.infoPiece = infoPiece;
+    public void setInfoPieceList(List<String> infoPieceList) {
+        this.infoPieceList = infoPieceList;
     }
 
     public String getInfoPublisher() {
@@ -196,7 +196,7 @@ public class BitTorrentModel implements Serializable {
         printMsgBuilder.append(String.format("encoding:%s \n comment:%s \n commentUtf8:%s \n createTime:%s \n createAuthor:%s \n nodes:%s \n ", encoding, comment, commentUtf8, String.valueOf(createTime), createAuthor, nodes));
         printMsgBuilder.append(String.format("announce:%s\n", announce));
         printMsgBuilder.append(String.format("announceList:%s\n", announceList));
-        printMsgBuilder.append(null == infoPiece ? "infoPiece:null" : "infoPiece is byte type, length = " + infoPiece.length + '\n');
+        printMsgBuilder.append(String.format("infoPieceList length:%s\n", (null == infoPieceList ? 0 : infoPieceList.size())));
         printMsgBuilder.append(String.format("infoKeySet:%s\n", infoKeySet));
         printMsgBuilder.append(String.format("name:%s \n nameUtf8:%s \n pieceLength:%s \n publisher:%s \n publisherUrl:%s \n publisherUrlUtf8:%s \n publisherUtf8:%s \n ",
                 infoName, infoNameUtf8, String.valueOf(infoPieceLength), infoPublisher, infoPublisherUrl, infoPublisherUrlUtf8, infoPublisherUtf8));
