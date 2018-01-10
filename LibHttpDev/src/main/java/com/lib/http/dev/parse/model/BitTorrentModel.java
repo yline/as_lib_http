@@ -1,4 +1,4 @@
-package com.lib.http.demo.parse.model;
+package com.lib.http.dev.parse.model;
 
 import com.yline.http.util.LogUtil;
 
@@ -26,6 +26,8 @@ public class BitTorrentModel implements Serializable {
 
     // info 层
     private Set<String> infoKeySet; // info目录的，key
+    private String infoHash;
+
     private String infoName;
     private String infoNameUtf8;
     private long infoPieceLength;
@@ -187,6 +189,14 @@ public class BitTorrentModel implements Serializable {
 
     public void setTopKeySet(Set<String> topKeySet) {
         this.topKeySet = topKeySet;
+    }
+
+    public String getInfoHash() {
+        return infoHash;
+    }
+
+    public void setInfoHash(String infoHash) {
+        this.infoHash = infoHash;
     }
 
     public String print() {

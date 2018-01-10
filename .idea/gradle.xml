@@ -10,6 +10,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/LibHttp" />
             <option value="$PROJECT_DIR$/LibHttpDemo" />
+            <option value="$PROJECT_DIR$/LibHttpDev" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

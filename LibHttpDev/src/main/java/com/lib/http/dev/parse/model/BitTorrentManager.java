@@ -1,4 +1,4 @@
-package com.lib.http.demo.parse.model;
+package com.lib.http.dev.parse.model;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,7 +64,7 @@ public class BitTorrentManager {
         return stringBuilder.toString();
     }
 
-    private static String byte2HexString(byte[] bytes, int start, int length) {
+    public static String byte2HexString(byte[] bytes, int start, int length) {
         if (bytes.length < length) {
             return "";
         }
@@ -162,6 +162,8 @@ public class BitTorrentManager {
 //                    objectOutputStream.close();
 //                }
 //            }
+
+            int infoHash = infoMap.hashCode();
 
             // --> info --> name
             String infoName = infoMap.containsKey(INFO_NAME) ? infoMap.get(INFO_NAME).getString(encoding) : null;

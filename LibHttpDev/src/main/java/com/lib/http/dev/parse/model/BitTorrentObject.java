@@ -1,4 +1,4 @@
-package com.lib.http.demo.parse.model;
+package com.lib.http.dev.parse.model;
 
 import android.text.TextUtils;
 

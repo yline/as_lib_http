@@ -1,4 +1,4 @@
-package com.lib.http.demo.download;
+package com.lib.http.dev.download;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.lib.http.demo.util.XHttpUtil;
+import com.lib.http.dev.util.XHttpUtil;
 import com.yline.test.BaseTestActivity;
 
 public class DownloadActivity extends BaseTestActivity {
@@ -19,12 +19,6 @@ public class DownloadActivity extends BaseTestActivity {
             }
             context.startActivity(intent);
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_download);
     }
 
     @Override
