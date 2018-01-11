@@ -1,13 +1,9 @@
 package com.lib.http.dev.parse.model;
 
-import com.lib.http.dev.parse.ParseActivity;
-import com.yline.http.util.LogUtil;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -203,17 +199,8 @@ class BitTorrentParser {
             BitTorrentObject mapModel = getBitTorrentModel();
             if (null != mapModel) {
                 String key = mapModel.getString();
-
                 BitTorrentObject value = getBitTorrentModel();
 
-                if ("info".equals(key)) {
-                    try {
-                        String sha = ParseActivity.getSHA1(value.getBytes());
-                        LogUtil.v("sha : " + sha);
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    }
-                }
                 result.put(key, value);
                 b = getNextIndicator();
             }

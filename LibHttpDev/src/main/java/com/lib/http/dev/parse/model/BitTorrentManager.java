@@ -1,7 +1,15 @@
 package com.lib.http.dev.parse.model;
 
+import android.util.Base64;
+
+import com.yline.utils.LogUtil;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -140,28 +148,31 @@ public class BitTorrentManager {
             Map<String, BitTorrentObject> infoMap = topMap.get(TOP_INFO).getMap();
             expressionResult.setInfoKeySet(infoMap.keySet());
 
-//            // --> info[SHA]
-//            ByteArrayOutputStream byteArrayOutputStream = null;
-//            ObjectOutputStream objectOutputStream = null;
-//            try {
-//                byteArrayOutputStream = new ByteArrayOutputStream();
-//                objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-//                objectOutputStream.writeObject(infoMap);
-//
-//                MessageDigest sha = MessageDigest.getInstance("SHA");
-//                sha.update(byteArrayOutputStream.toByteArray());
-//                String shaString = Base64.encodeToString(sha.digest(), Base64.DEFAULT);
-//                LogUtil.v("shaString = " + shaString);
-//            } catch (NoSuchAlgorithmException e) {
-//                e.printStackTrace();
-//            } finally {
-//                if (null != byteArrayOutputStream) {
-//                    byteArrayOutputStream.close();
-//                }
-//                if (null != objectOutputStream) {
-//                    objectOutputStream.close();
-//                }
-//            }
+            // --> info[SHA]
+            ByteArrayOutputStream byteArrayOutputStream = null;
+            ObjectOutputStream objectOutputStream = null;
+            try {
+                byteArrayOutputStream = new ByteArrayOutputStream();
+                objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+                objectOutputStream.writeObject(infoMap);
+
+                MessageDigest sha = MessageDigest.getInstance("SHA-1");
+                sha.update(byteArrayOutputStream.toByteArray());
+                byte[] resultBytes = sha.digest();
+                String shaStringTemp = byte2HexString(resultBytes, 0, 20);
+
+                String shaString = Base64.encodeToString(resultBytes, Base64.DEFAULT);
+                LogUtil.v("shaString = " + shaString);
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } finally {
+                if (null != byteArrayOutputStream) {
+                    byteArrayOutputStream.close();
+                }
+                if (null != objectOutputStream) {
+                    objectOutputStream.close();
+                }
+            }
 
             int infoHash = infoMap.hashCode();
 

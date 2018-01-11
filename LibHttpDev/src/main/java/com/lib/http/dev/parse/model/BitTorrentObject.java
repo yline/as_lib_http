@@ -2,6 +2,7 @@ package com.lib.http.dev.parse.model;
 
 import android.text.TextUtils;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.Map;
  * @author yline 2017/12/6 -- 16:06
  * @version 1.0.0
  */
-class BitTorrentObject {
+class BitTorrentObject implements Serializable {
     private final Object mValue;
 
     public BitTorrentObject(byte[] value) {

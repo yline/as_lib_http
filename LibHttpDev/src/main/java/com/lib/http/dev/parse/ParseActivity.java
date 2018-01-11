@@ -10,13 +10,16 @@ import android.widget.TextView;
 import com.lib.http.dev.parse.model.BitTorrentManager;
 import com.lib.http.dev.parse.model.BitTorrentModel;
 import com.yline.test.BaseTestActivity;
+import com.yline.utils.FileUtil;
 import com.yline.utils.LogUtil;
 import com.yline.utils.UIScreenUtil;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -38,12 +41,8 @@ public class ParseActivity extends BaseTestActivity {
         messageDigest.update(bytes);
 
         byte[] digestBytes = messageDigest.digest();
-        return BitTorrentManager.byte2HexString(digestBytes, 0, digestBytes.length);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        String result = BitTorrentManager.byte2HexString(digestBytes, 0, digestBytes.length);
+        return result;
     }
 
     @Override
@@ -77,16 +76,22 @@ public class ParseActivity extends BaseTestActivity {
         addButton("Parse One By One", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                try {
-//                    File file = FileUtil.getFileExternal(ParseActivity.this, "test", "test");
-//                    writeBytesToFile(getAssets().open("test.torrent"), file);
-//
-////                    LogUtil.v("SHA1 = " + getSHA1(file));
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                } catch (NoSuchAlgorithmException e) {
-//                    e.printStackTrace();
-//                }
+                try {
+                    File file = FileUtil.getFileExternal(ParseActivity.this, "test", "test");
+                    writeBytesToFile(getAssets().open("test.torrent"), file);
+
+                    FileOutputStream outputStream = new FileOutputStream(file);
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    byteArrayOutputStream.writeTo(outputStream);
+
+                    LogUtil.v("SHA1 = " + getSHA1(byteArrayOutputStream.toByteArray()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
