@@ -72,7 +72,7 @@ public class EncryptUtil {
         }
     }
 
-    private static String byte2HexString(@NonNull byte[] bytes, int start, int length) {
+    public static String byte2HexString(@NonNull byte[] bytes, int start, int length) {
         if (bytes.length < length) {
             return "";
         }

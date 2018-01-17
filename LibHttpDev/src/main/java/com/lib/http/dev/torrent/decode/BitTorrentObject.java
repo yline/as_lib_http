@@ -1,4 +1,4 @@
-package com.lib.http.dev.parse.model;
+package com.lib.http.dev.torrent.decode;
 
 import android.text.TextUtils;
 

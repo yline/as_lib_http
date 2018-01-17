@@ -1,15 +1,9 @@
-package com.lib.http.dev.parse.model;
+package com.lib.http.dev.torrent.decode;
 
-import android.util.Base64;
+import com.lib.http.dev.util.EncryptUtil;
 
-import com.yline.utils.LogUtil;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,10 +15,10 @@ import java.util.Map;
  * @author yline 2017/12/6 -- 13:49
  * @version 1.0.0
  */
-public class BitTorrentManager {
-    private static final int SINGLE_PIECE_HASH = 20; // 单个片段，的hash值的长度
-    private static final char[] DIGITS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'}; // byte 解析成 hex
+public class BtDecodeManager {
+    private static final int SINGLE_PIECE_HASH = 20; // 单个片段，的hash值的长度，hex之后就是40
 
+    // 顶部结构，单文件和多文件结构相同
     private static final String TOP_ANNOUNCE = "announce";
     private static final String TOP_ANNOUNCE_LIST = "announce-list";
     private static final String TOP_COMMENT = "comment";
@@ -35,6 +29,7 @@ public class BitTorrentManager {
     private static final String TOP_INFO = "info";
     private static final String TOP_NODES = "nodes";
 
+    // info结构，单文件和多文件相同的部分
     private static final String INFO_NAME = "name";
     private static final String INFO_NAME_UTF8 = "name.utf-8";
     private static final String INFO_PIECE_LENGTH = "piece length";
@@ -43,49 +38,44 @@ public class BitTorrentManager {
     private static final String INFO_PUBLISHER_URL = "publisher-url";
     private static final String INFO_PUBLISHER_URL_UTF8 = "publisher-url.utf-8";
     private static final String INFO_PUBLISHER_UTF8 = "publisher.utf-8";
-    private static final String INFO_FILES = "files";
 
+    // info结构，单文件和多文件不同的部分
+    // 多文件
+    private static final String INFO_FILES = "files";
+    // 多文件内容
     private static final String FILES_LENGTH = "length";
     private static final String FILES_PATH = "path";
     private static final String FILES_PATH_UTF8 = "path.utf-8";
+    // 单文件
+    private static final String INFO_FILE_LENGTH = "length";
 
-    private BitTorrentManager() {
+    private BtDecodeManager() {
     }
 
     public static BitTorrentModel load(InputStream inputStream) throws IOException {
-        return new BitTorrentManager().expressionBitTorrent(inputStream);
+        
+
+        BitTorrentModel resultModel = expressionBitTorrent(inputStream);
+        return expressionInfoHash(resultModel, inputStream);
     }
 
-    public static String genMagnet(BitTorrentModel torrentModel) {
-        StringBuilder stringBuilder = new StringBuilder("magnet:?xt=urn:");
-        stringBuilder.append("btih:");
-        stringBuilder.append(torrentModel.getInfoPieceList().get(0));
-
-        stringBuilder.append("&dn=");
-        stringBuilder.append(torrentModel.getInfoName());
-
-        List<String> fileUrlList = torrentModel.getAnnounceList();
-        for (String url : fileUrlList) {
-            stringBuilder.append("&tr=");
-            stringBuilder.append(url);
-        }
-        return stringBuilder.toString();
+    /**
+     * 单独解析，infoHash
+     *
+     * @return 包含infoHash信息的数据模型
+     */
+    private static BitTorrentModel expressionInfoHash(BitTorrentModel resultModel, InputStream inputStream) {
+        return resultModel;
     }
 
-    public static String byte2HexString(byte[] bytes, int start, int length) {
-        if (bytes.length < length) {
-            return "";
-        }
-
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = start; i < start + length; i++) {
-            stringBuilder.append(DIGITS[(bytes[i] & 0xf0) >> 4]); // 高4位
-            stringBuilder.append(DIGITS[(bytes[i] & 0x0f)]); // 低4位
-        }
-        return stringBuilder.toString();
-    }
-
-    private BitTorrentModel expressionBitTorrent(InputStream inputStream) throws IOException {
+    /**
+     * 解析 BitTorrent文件入口
+     *
+     * @param inputStream 流
+     * @return 未包含infoHash的数据模型
+     * @throws IOException 解析异常
+     */
+    private static BitTorrentModel expressionBitTorrent(InputStream inputStream) throws IOException {
         BitTorrentObject bitTorrentObject = BitTorrentParser.getParseResult(inputStream);
         if (null != bitTorrentObject) {
             BitTorrentModel expressionResult = new BitTorrentModel();
@@ -148,33 +138,7 @@ public class BitTorrentManager {
             Map<String, BitTorrentObject> infoMap = topMap.get(TOP_INFO).getMap();
             expressionResult.setInfoKeySet(infoMap.keySet());
 
-            // --> info[SHA]
-            ByteArrayOutputStream byteArrayOutputStream = null;
-            ObjectOutputStream objectOutputStream = null;
-            try {
-                byteArrayOutputStream = new ByteArrayOutputStream();
-                objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-                objectOutputStream.writeObject(infoMap);
-
-                MessageDigest sha = MessageDigest.getInstance("SHA-1");
-                sha.update(byteArrayOutputStream.toByteArray());
-                byte[] resultBytes = sha.digest();
-                String shaStringTemp = byte2HexString(resultBytes, 0, 20);
-
-                String shaString = Base64.encodeToString(resultBytes, Base64.DEFAULT);
-                LogUtil.v("shaString = " + shaString);
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } finally {
-                if (null != byteArrayOutputStream) {
-                    byteArrayOutputStream.close();
-                }
-                if (null != objectOutputStream) {
-                    objectOutputStream.close();
-                }
-            }
-
-            int infoHash = infoMap.hashCode();
+            // --> info[SHA]; 方式错误
 
             // --> info --> name
             String infoName = infoMap.containsKey(INFO_NAME) ? infoMap.get(INFO_NAME).getString(encoding) : null;
@@ -194,7 +158,7 @@ public class BitTorrentManager {
             if (null != infoPiece) {
                 long pieceSize = infoPiece.length / SINGLE_PIECE_HASH;
                 for (int i = 0; i < pieceSize; i++) {
-                    infoPieceList.add(byte2HexString(infoPiece, i * SINGLE_PIECE_HASH, SINGLE_PIECE_HASH));
+                    infoPieceList.add(EncryptUtil.byte2HexString(infoPiece, i * SINGLE_PIECE_HASH, SINGLE_PIECE_HASH));
                 }
             }
             expressionResult.setInfoPieceList(infoPieceList);
@@ -216,7 +180,9 @@ public class BitTorrentManager {
             expressionResult.setInfoPublisherUtf8(infoPublisherUtf8);
 
             // --> info --> files
-            if (infoMap.containsKey(INFO_FILES)) {
+            if (infoMap.containsKey(INFO_FILES)) {  // 多文件
+                expressionResult.setFileType(BitTorrentModel.FILE_TYPE_MULTI);
+
                 List<BitTorrentObject> fileList = infoMap.get(INFO_FILES).getList();
 
                 List<BitTorrentModel.BitTorrentFileModel> fileModelList = new ArrayList<>();
@@ -248,8 +214,16 @@ public class BitTorrentManager {
                     fileModelList.add(fileModel);
                 }
                 expressionResult.setFileModelList(fileModelList);
-                return expressionResult;
+            } else if (infoMap.containsKey(INFO_FILE_LENGTH)) {
+                expressionResult.setFileType(BitTorrentModel.FILE_TYPE_SINGLE);
+
+                long length = infoMap.get(INFO_FILE_LENGTH).getLong();
+                expressionResult.setInfoLength(length);
+            } else {
+                expressionResult.setFileType(BitTorrentModel.FILE_TYPE_UNKNOWN);
             }
+
+            return expressionResult;
         }
         return null;
     }

@@ -1,4 +1,7 @@
-package com.lib.http.dev.parse.model;
+package com.lib.http.dev.torrent.decode;
+
+import android.support.annotation.IntRange;
+import android.text.TextUtils;
 
 import com.yline.http.util.LogUtil;
 
@@ -13,7 +16,11 @@ import java.util.Set;
  * @version 1.0.0
  */
 public class BitTorrentModel implements Serializable {
-    // 顶部
+    public static final int FILE_TYPE_SINGLE = 0; // 单文件
+    public static final int FILE_TYPE_MULTI = 1; // 多文件
+    public static final int FILE_TYPE_UNKNOWN = 2; // 未知
+
+    // 顶部结构，单文件和多文件结构相同
     private Set<String> topKeySet; // 顶级目录的，key
     private String encoding; // 编码格式
     private String announce; // 主要地址
@@ -24,10 +31,8 @@ public class BitTorrentModel implements Serializable {
     private String createAuthor; // 创建者
     private String nodes; // 节点
 
-    // info 层
+    // info结构，单文件和多文件相同的部分
     private Set<String> infoKeySet; // info目录的，key
-    private String infoHash;
-
     private String infoName;
     private String infoNameUtf8;
     private long infoPieceLength;
@@ -37,7 +42,71 @@ public class BitTorrentModel implements Serializable {
     private String infoPublisherUrlUtf8;
     private String infoPublisherUtf8;
 
-    private List<BitTorrentFileModel> fileModelList;
+    // info结构，单文件和多文件不同的部分
+    private List<BitTorrentFileModel> fileModelList; // 多文件
+    private long infoLength; // 单文件
+
+    // 其它信息
+    private int fileType; // 文件类型 {BitTorrentModel.FILE_TYPE_SINGLE，BitTorrentModel.FILE_TYPE_MULTI，BitTorrentModel.FILE_TYPE_UNKNOWN}
+    private String infoHash; // 暂时还没有
+
+    public String print() {
+        StringBuilder msgBuilder = new StringBuilder();
+
+        msgBuilder.append("topKeySet:");
+        msgBuilder.append(topKeySet);
+        msgBuilder.append('\n');
+
+        // 顶部
+        print(msgBuilder, "announce", announce);
+        print(msgBuilder, "announceList", null == announceList ? "[]" : announceList.toString());
+        print(msgBuilder, "encoding", encoding);
+        print(msgBuilder, "comment", comment);
+        print(msgBuilder, "commentUtf8", commentUtf8);
+        print(msgBuilder, "createTime", String.valueOf(createTime));
+        print(msgBuilder, "createAuthor", createAuthor);
+        print(msgBuilder, "nodes", nodes);
+
+        msgBuilder.append("\ninfoKeySet:");
+        msgBuilder.append(infoKeySet);
+        msgBuilder.append('\n');
+
+        // info，相同部分
+        print(msgBuilder, "infoName", infoName);
+        print(msgBuilder, "infoNameUtf8", infoNameUtf8);
+        print(msgBuilder, "infoPieceLength", String.valueOf(infoPieceLength));
+        print(msgBuilder, "infoPieceList", null == infoPieceList ? "" : String.valueOf(infoPieceList.size()));
+        print(msgBuilder, "infoPublisher", infoPublisher);
+        print(msgBuilder, "infoPublisherUrl", infoPublisherUrl);
+        print(msgBuilder, "infoPublisherUrlUtf8", infoPublisherUrlUtf8);
+        print(msgBuilder, "infoPublisherUtf8", infoPublisherUtf8);
+
+        // info，不同部分，以及其他
+        if (fileType == FILE_TYPE_SINGLE) {
+            print(msgBuilder, "fileType", "single");
+            print(msgBuilder, "infoLength", String.valueOf(infoLength));
+        } else if (fileType == FILE_TYPE_MULTI) {
+            print(msgBuilder, "fileType", "multi");
+            print(msgBuilder, "fileModelList", null == fileModelList ? "[]" : fileModelList.toString());
+        } else {
+            print(msgBuilder, "fileType", "unKnown");
+        }
+        print(msgBuilder, "infoHash", infoHash);
+
+        String result = msgBuilder.toString();
+        LogUtil.v("result = " + result);
+        return result;
+    }
+
+    private void print(StringBuilder builder, String tag, String content) {
+        if (!TextUtils.isEmpty(content)) {
+            builder.append("  ");
+            builder.append(tag);
+            builder.append(" = ");
+            builder.append(content);
+            builder.append('\n');
+        }
+    }
 
     public List<BitTorrentFileModel> getFileModelList() {
         return fileModelList;
@@ -199,21 +268,20 @@ public class BitTorrentModel implements Serializable {
         this.infoHash = infoHash;
     }
 
-    public String print() {
-        StringBuilder printMsgBuilder = new StringBuilder();
-        printMsgBuilder.append('\n');
-        printMsgBuilder.append(String.format("topKeySet:%s\n", topKeySet));
-        printMsgBuilder.append(String.format("encoding:%s \n comment:%s \n commentUtf8:%s \n createTime:%s \n createAuthor:%s \n nodes:%s \n ", encoding, comment, commentUtf8, String.valueOf(createTime), createAuthor, nodes));
-        printMsgBuilder.append(String.format("announce:%s\n", announce));
-        printMsgBuilder.append(String.format("announceList:%s\n", announceList));
-        printMsgBuilder.append(String.format("infoPieceList length:%s\n", (null == infoPieceList ? 0 : infoPieceList.size())));
-        printMsgBuilder.append(String.format("infoKeySet:%s\n", infoKeySet));
-        printMsgBuilder.append(String.format("name:%s \n nameUtf8:%s \n pieceLength:%s \n publisher:%s \n publisherUrl:%s \n publisherUrlUtf8:%s \n publisherUtf8:%s \n ",
-                infoName, infoNameUtf8, String.valueOf(infoPieceLength), infoPublisher, infoPublisherUrl, infoPublisherUrlUtf8, infoPublisherUtf8));
-        printMsgBuilder.append(fileModelList);
-        String result = printMsgBuilder.toString();
-        LogUtil.v("result = " + result);
-        return result;
+    public long getInfoLength() {
+        return infoLength;
+    }
+
+    public void setInfoLength(long infoLength) {
+        this.infoLength = infoLength;
+    }
+
+    public int getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(@IntRange(from = 0, to = 2) int fileType) {
+        this.fileType = fileType;
     }
 
     public static class BitTorrentFileModel implements Serializable {

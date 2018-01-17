@@ -1,4 +1,4 @@
-package com.lib.http.dev.parse.model;
+package com.lib.http.dev.torrent.decode;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -200,7 +200,6 @@ class BitTorrentParser {
             if (null != mapModel) {
                 String key = mapModel.getString();
                 BitTorrentObject value = getBitTorrentModel();
-
                 result.put(key, value);
                 b = getNextIndicator();
             }

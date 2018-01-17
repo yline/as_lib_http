@@ -18,7 +18,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".download.DownloadActivity" />
-        <activity android:name=".parse.ParseActivity" />
+        <activity android:name=".torrent.ParseActivity" />
     </application>
 
 </manifest>
