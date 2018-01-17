@@ -37,8 +37,7 @@ public class ParseActivity extends BaseTestActivity {
                     String result = torrent.print();
                     singleTextView.setText(result);
 
-//                        String magnet = BtDecodeManager.genMagnet(torrent);
-//                        LogUtil.v("magnet = " + magnet);
+                    LogUtil.v("单文件：" + BtManager.genMagnet(torrent));
                 } else {
                     LogUtil.v("torrent is null");
                 }
@@ -55,26 +54,38 @@ public class ParseActivity extends BaseTestActivity {
                     String result = torrent.print();
                     multiTextView.setText(result);
 
-//                    String magnet = BtManager.genMagnet(torrent);
-//                    LogUtil.v("magnet = " + magnet);
+                    LogUtil.v("多文件：" + BtManager.genMagnet(torrent));
                 } else {
                     LogUtil.v("torrent is null");
                 }
             }
         });
 
-        addButton("检测，SHA1值", new View.OnClickListener() {
+        final TextView fileTextView = addTextView("");
+        addButton("检测，文件SHA1值", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String singleShaStr = EncryptUtil.getAssetsEncrypt(ParseActivity.this, "single.torrent", EncryptUtil.SHA1);
                 LogUtil.v("single SHA1 = " + singleShaStr);
-                
+
                 String multiShaStr = EncryptUtil.getAssetsEncrypt(ParseActivity.this, "multi.torrent", EncryptUtil.SHA1);
                 LogUtil.v("multi SHA1 = " + multiShaStr);
+
+                fileTextView.setText((singleShaStr + "\n" + multiShaStr));
             }
         });
 
-        // 生成，下载链接
+        addButton("测试", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String startStr = "123456789qwertyuiop";
 
+                String hexString = EncryptUtil.byte2HexString(startStr.getBytes(), 0, startStr.getBytes().length);
+                byte[] hexBytes = EncryptUtil.hexString2Byte(hexString);
+
+                String resultStr = new String(hexBytes);
+                LogUtil.v(resultStr);
+            }
+        });
     }
 }

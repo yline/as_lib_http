@@ -2,10 +2,12 @@ package com.lib.http.dev.util;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -83,6 +85,14 @@ public class EncryptUtil {
             stringBuilder.append(DIGITS[(bytes[i] & 0x0f)]); // 低4位
         }
         return stringBuilder.toString();
+    }
+
+    public static byte[] hexString2Byte(String hexString) {
+        if (TextUtils.isEmpty(hexString)) {
+            return null;
+        }
+
+        return new BigInteger(hexString, 16).toByteArray();
     }
 
     private static ByteArrayOutputStream inputSteam2ByteArrayOutputSteam(InputStream in) throws IOException {

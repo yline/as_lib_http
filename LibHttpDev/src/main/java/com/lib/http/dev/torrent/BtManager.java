@@ -1,6 +1,7 @@
 package com.lib.http.dev.torrent;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.lib.http.dev.torrent.decode.BitTorrentModel;
 import com.lib.http.dev.torrent.decode.BtDecodeManager;
@@ -16,15 +17,6 @@ import java.util.List;
  * @version 1.0.0
  */
 public class BtManager {
-    public static BitTorrentModel load(InputStream inputStream) {
-        try {
-            return BtDecodeManager.load(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     public static BitTorrentModel load(Context context, String assetFileName) {
         try {
             InputStream inputStream = context.getResources().getAssets().open(assetFileName);
@@ -35,22 +27,49 @@ public class BtManager {
         }
     }
 
+    public static BitTorrentModel load(InputStream inputStream) {
+        try {
+            return BtDecodeManager.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /**
      * 目前还缺少，infoHash信息
      */
     public static String genMagnet(BitTorrentModel torrentModel) {
-        StringBuilder stringBuilder = new StringBuilder("magnet:?xt=urn:");
-        stringBuilder.append("btih:");
-        stringBuilder.append(torrentModel.getInfoPieceList().get(0));
-
-        stringBuilder.append("&dn=");
-        stringBuilder.append(torrentModel.getInfoName());
-
-        List<String> fileUrlList = torrentModel.getAnnounceList();
-        for (String url : fileUrlList) {
-            stringBuilder.append("&tr=");
-            stringBuilder.append(url);
+        if (null != torrentModel) {
+            return genMagnet(torrentModel.getInfoHash(), torrentModel.getInfoName(), torrentModel.getAnnounceList());
         }
+        return null;
+    }
+
+    /**
+     * 生成磁力链接，放入浏览器中无法打开，放入迅雷中可以打开
+     *
+     * @return 磁力链接
+     */
+    private static String genMagnet(String infoHash, String fileName, List<String> fileUrlList) {
+        StringBuilder stringBuilder = new StringBuilder("magnet:?");
+        if (!TextUtils.isEmpty(infoHash)) {
+            stringBuilder.append("xt=urn:btih:");
+            stringBuilder.append(infoHash);
+        }
+
+        if (!TextUtils.isEmpty(fileName)) {
+            stringBuilder.append("&dn");
+            stringBuilder.append(fileName);
+        }
+
+        if (null != fileUrlList && !fileUrlList.isEmpty()) {
+            for (String url : fileUrlList) {
+                stringBuilder.append("&tr=");
+                stringBuilder.append(url);
+            }
+        }
+
         return stringBuilder.toString();
     }
 }

@@ -2,6 +2,8 @@ package com.lib.http.dev.torrent.decode;
 
 import com.lib.http.dev.util.EncryptUtil;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -16,8 +18,8 @@ import java.util.Map;
  * @version 1.0.0
  */
 public class BtDecodeManager {
+    public static final String TOP_INFO = "info";
     private static final int SINGLE_PIECE_HASH = 20; // 单个片段，的hash值的长度，hex之后就是40
-
     // 顶部结构，单文件和多文件结构相同
     private static final String TOP_ANNOUNCE = "announce";
     private static final String TOP_ANNOUNCE_LIST = "announce-list";
@@ -26,7 +28,6 @@ public class BtDecodeManager {
     private static final String TOP_CREATION_DATE = "creation date";
     private static final String TOP_CREATION_BY = "created by";
     private static final String TOP_ENCODING = "encoding";
-    private static final String TOP_INFO = "info";
     private static final String TOP_NODES = "nodes";
 
     // info结构，单文件和多文件相同的部分
@@ -53,10 +54,22 @@ public class BtDecodeManager {
     }
 
     public static BitTorrentModel load(InputStream inputStream) throws IOException {
-        
+        // 准备复制流
+        ByteArrayOutputStream baoStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int len;
+        while ((len = inputStream.read(buffer)) > -1) {
+            baoStream.write(buffer, 0, len);
+        }
+        baoStream.flush();
 
-        BitTorrentModel resultModel = expressionBitTorrent(inputStream);
-        return expressionInfoHash(resultModel, inputStream);
+        // 第一份流
+        InputStream firstInputStream = new ByteArrayInputStream(baoStream.toByteArray());
+        BitTorrentModel resultModel = expressionBitTorrent(firstInputStream);
+
+        // 第二份流
+        InputStream secondInputStream = new ByteArrayInputStream(baoStream.toByteArray());
+        return expressionInfoHash(resultModel, secondInputStream);
     }
 
     /**
@@ -76,14 +89,19 @@ public class BtDecodeManager {
      * @throws IOException 解析异常
      */
     private static BitTorrentModel expressionBitTorrent(InputStream inputStream) throws IOException {
-        BitTorrentObject bitTorrentObject = BitTorrentParser.getParseResult(inputStream);
+        BitTorrentParser bitTorrentParser = new BitTorrentParser(inputStream);
+        BitTorrentObject bitTorrentObject = bitTorrentParser.getParseResult();
         if (null != bitTorrentObject) {
             BitTorrentModel expressionResult = new BitTorrentModel();
+            // 其它信息 --> info[SHA]
+            String infoHash = bitTorrentParser.getInfoHash();
+            expressionResult.setInfoHash(infoHash);
 
+            // 开始解析 --> 顶部
             Map<String, BitTorrentObject> topMap = bitTorrentObject.getMap();
             expressionResult.setTopKeySet(topMap.keySet());
 
-            // 开始解析 --> encoding [编码格式]
+            // --> encoding [编码格式]
             String encoding = topMap.containsKey(TOP_ENCODING) ? topMap.get(TOP_ENCODING).getString() : null;
             expressionResult.setEncoding(encoding);
 
@@ -137,8 +155,6 @@ public class BtDecodeManager {
             // --> info [文件信息]
             Map<String, BitTorrentObject> infoMap = topMap.get(TOP_INFO).getMap();
             expressionResult.setInfoKeySet(infoMap.keySet());
-
-            // --> info[SHA]; 方式错误
 
             // --> info --> name
             String infoName = infoMap.containsKey(INFO_NAME) ? infoMap.get(INFO_NAME).getString(encoding) : null;

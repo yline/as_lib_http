@@ -1,5 +1,8 @@
 package com.lib.http.dev.torrent.decode;
 
+import com.lib.http.dev.util.EncryptUtil;
+
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +20,8 @@ import java.util.Map;
  */
 class BitTorrentParser {
     private final InputStream mInputStream;
+    private final ByteArrayOutputStream mBaoStream; // 依据标记，确定是否开始读取
+    private boolean mIsStartRead; // 标记
 
     // Zero 未知类型
     // '0'..'9' 表示是byte[]数组也就是字符串类型.
@@ -28,12 +33,20 @@ class BitTorrentParser {
     // 调用getNextIndicator接口获取当前的值
     private int mIndicator = 0;
 
-    private BitTorrentParser(InputStream in) {
+    private String mInfoHash;
+
+    BitTorrentParser(InputStream in) {
         mInputStream = in;
+        mIsStartRead = false;
+        mBaoStream = new ByteArrayOutputStream();
     }
 
-    static BitTorrentObject getParseResult(InputStream inputStream) throws IOException {
-        return new BitTorrentParser(inputStream).getBitTorrentModel();
+    BitTorrentObject getParseResult() throws IOException {
+        return getBitTorrentModel();
+    }
+
+    String getInfoHash() {
+        return mInfoHash;
     }
 
     /**
@@ -199,7 +212,15 @@ class BitTorrentParser {
             BitTorrentObject mapModel = getBitTorrentModel();
             if (null != mapModel) {
                 String key = mapModel.getString();
+                if (BtDecodeManager.TOP_INFO.equalsIgnoreCase(key) && !mIsStartRead) {
+                    mIsStartRead = true;
+                }
                 BitTorrentObject value = getBitTorrentModel();
+                if (BtDecodeManager.TOP_INFO.equalsIgnoreCase(key)) {
+                    mIsStartRead = false;
+                    mInfoHash = EncryptUtil.getMessageDigest(mBaoStream.toByteArray(), EncryptUtil.SHA1);
+                }
+
                 result.put(key, value);
                 b = getNextIndicator();
             }
@@ -211,6 +232,7 @@ class BitTorrentParser {
     private int getNextIndicator() throws IOException {
         if (mIndicator == 0) {
             mIndicator = mInputStream.read();
+            write(mIndicator);
         }
         return mIndicator;
     }
@@ -223,6 +245,8 @@ class BitTorrentParser {
         if (b == -1) {
             throw new EOFException();
         }
+        write(b);
+
         return b;
     }
 
@@ -240,7 +264,20 @@ class BitTorrentParser {
             }
             read += i;
         }
+        write(result);
 
         return result;
+    }
+
+    private void write(int b) {
+        if (mIsStartRead) {
+            mBaoStream.write(b);
+        }
+    }
+
+    private void write(byte[] bytes) throws IOException {
+        if (mIsStartRead) {
+            mBaoStream.write(bytes);
+        }
     }
 }
