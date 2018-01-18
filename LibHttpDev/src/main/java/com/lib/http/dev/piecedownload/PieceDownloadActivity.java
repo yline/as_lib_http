@@ -26,9 +26,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * 让用户，选择要下载的项
+ *
+ * @author yline 2018/1/18 -- 10:43
+ * @version 1.0.0
+ */
 public class PieceDownloadActivity extends BaseAppCompatActivity {
     public static final int BYTE_UNIT = 1024;
     private PieceDownloadAdapter mPieceAdapter;
+    private BitTorrentModel mTorrentModel;
 
     public static void launcher(Context context) {
         if (null != context) {
@@ -85,20 +92,25 @@ public class PieceDownloadActivity extends BaseAppCompatActivity {
         findViewById(R.id.piece_download_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SDKManager.toast("确定");
+                if (null != mTorrentModel) {
+                    SDKManager.toast("确定");
+                } else {
+                    SDKManager.toast("数据为空");
+                    finish();
+                }
             }
         });
     }
 
     private void initData() {
-        BitTorrentModel bitTorrentModel = BtManager.load(PieceDownloadActivity.this, "multi.torrent");
-        if (null != bitTorrentModel) {
+        mTorrentModel = BtManager.load(PieceDownloadActivity.this, "multi.torrent");
+        if (null != mTorrentModel) {
             // 显示主题
             TextView nameTv = findViewById(R.id.piece_download_name);
-            nameTv.setText(bitTorrentModel.getInfoName());
+            nameTv.setText(mTorrentModel.getInfoName());
 
             // 每个选项
-            mPieceAdapter.setDataList(bitTorrentModel.getFileModelList(), true);
+            mPieceAdapter.setDataList(mTorrentModel.getFileModelList(), true);
         } else {
             LogUtil.v("解析失败");
             SDKManager.toast("解析失败");
