@@ -7,6 +7,12 @@
     android:paddingRight="15dp"
     android:paddingTop="10dp">
 
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/item_piece_download_check_box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true" />
+
     <TextView
         android:id="@+id/item_piece_download_size"
         android:layout_width="wrap_content"
@@ -19,8 +25,11 @@
         android:id="@+id/item_piece_download_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
         android:layout_marginRight="15dp"
         android:layout_toLeftOf="@id/item_piece_download_size"
+        android:layout_toRightOf="@id/item_piece_download_check_box"
         android:text="黑客帝国"
         android:textSize="12dp" />
 </RelativeLayout>

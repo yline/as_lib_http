@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.TextView;
 
 import com.lib.http.dev.R;
 import com.lib.http.dev.torrent.BtManager;
@@ -14,9 +17,12 @@ import com.yline.application.SDKManager;
 import com.yline.base.BaseAppCompatActivity;
 import com.yline.utils.LogUtil;
 import com.yline.view.recycler.adapter.AbstractCommonRecyclerAdapter;
+import com.yline.view.recycler.decoration.CommonLinearDecoration;
 import com.yline.view.recycler.holder.RecyclerViewHolder;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -69,12 +75,29 @@ public class PieceDownloadActivity extends BaseAppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.piece_download_recycler);
         mPieceAdapter = new PieceDownloadAdapter();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.addItemDecoration(new CommonLinearDecoration(this));
         recyclerView.setAdapter(mPieceAdapter);
+
+        initViewClick();
+    }
+
+    private void initViewClick() {
+        findViewById(R.id.piece_download_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SDKManager.toast("确定");
+            }
+        });
     }
 
     private void initData() {
         BitTorrentModel bitTorrentModel = BtManager.load(PieceDownloadActivity.this, "multi.torrent");
         if (null != bitTorrentModel) {
+            // 显示主题
+            TextView nameTv = findViewById(R.id.piece_download_name);
+            nameTv.setText(bitTorrentModel.getInfoName());
+
+            // 每个选项
             mPieceAdapter.setDataList(bitTorrentModel.getFileModelList(), true);
         } else {
             LogUtil.v("解析失败");
@@ -83,6 +106,7 @@ public class PieceDownloadActivity extends BaseAppCompatActivity {
     }
 
     private class PieceDownloadAdapter extends AbstractCommonRecyclerAdapter<BitTorrentModel.BitTorrentFileModel> {
+        private boolean[] mCheckedArray;
 
         @Override
         public int getItemRes() {
@@ -90,13 +114,45 @@ public class PieceDownloadActivity extends BaseAppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(RecyclerViewHolder holder, int position) {
+        public void setDataList(List<BitTorrentModel.BitTorrentFileModel> bitTorrentFileModels, boolean isNotify) {
+            if (null != bitTorrentFileModels && !bitTorrentFileModels.isEmpty()) {
+                mCheckedArray = new boolean[bitTorrentFileModels.size()];
+                Arrays.fill(mCheckedArray, true);
+            }
+            super.setDataList(bitTorrentFileModels, isNotify);
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerViewHolder holder, final int position) {
             BitTorrentModel.BitTorrentFileModel fileModel = getItem(position);
 
+            // 路径
             holder.setText(R.id.item_piece_download_name, fileModel.getFilePath());
 
+            // 大小
             String sizeStr = byteLength2byteSize(fileModel.getLength());
             holder.setText(R.id.item_piece_download_size, sizeStr);
+
+            // 是否选择
+            final AppCompatCheckBox checkBox = holder.get(R.id.item_piece_download_check_box);
+            if (position >= mCheckedArray.length) {
+                checkBox.setVisibility(View.GONE);
+            } else {
+                checkBox.setVisibility(View.VISIBLE);
+                checkBox.setChecked(mCheckedArray[position]);
+                checkBox.setClickable(false);
+
+                // 状态改变
+                holder.getItemView().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        boolean oldIsChecked = checkBox.isChecked();
+                        checkBox.setChecked(!oldIsChecked);
+
+                        mCheckedArray[position] = !oldIsChecked;
+                    }
+                });
+            }
         }
     }
 }

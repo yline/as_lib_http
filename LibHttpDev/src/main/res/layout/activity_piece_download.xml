@@ -3,16 +3,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/piece_download_tv"
+    <LinearLayout
+        android:id="@+id/piece_download_ll_title"
         android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:gravity="center"
-        android:text="选择下载的项" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/piece_download_tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center"
+            android:text="选择下载的项" />
+
+        <TextView
+            android:id="@+id/piece_download_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:text="黑客帝国"
+            android:textColor="@android:color/holo_red_light" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/piece_download_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="确定" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/piece_download_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/piece_download_tv" />
+        android:layout_above="@id/piece_download_btn"
+        android:layout_below="@id/piece_download_ll_title" />
 </RelativeLayout>
