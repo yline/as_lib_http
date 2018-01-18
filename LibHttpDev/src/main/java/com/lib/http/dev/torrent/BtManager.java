@@ -17,6 +17,9 @@ import java.util.List;
  * @version 1.0.0
  */
 public class BtManager {
+    /**
+     * 解析种子文件
+     */
     public static BitTorrentModel load(Context context, String assetFileName) {
         try {
             InputStream inputStream = context.getResources().getAssets().open(assetFileName);
@@ -27,6 +30,9 @@ public class BtManager {
         }
     }
 
+    /**
+     * 解析种子文件
+     */
     public static BitTorrentModel load(InputStream inputStream) {
         try {
             return BtDecodeManager.load(inputStream);
@@ -37,7 +43,7 @@ public class BtManager {
     }
 
     /**
-     * 目前还缺少，infoHash信息
+     * 生成磁力链接
      */
     public static String genMagnet(BitTorrentModel torrentModel) {
         if (null != torrentModel) {

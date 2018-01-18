@@ -19,6 +19,9 @@
         </activity>
         <activity android:name=".download.DownloadActivity" />
         <activity android:name=".torrent.ParseActivity" />
+        <activity
+            android:name=".piecedownload.PieceDownloadActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 </manifest>

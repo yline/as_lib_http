@@ -7,13 +7,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.lib.http.dev.piecedownload.PieceDownloadActivity;
 import com.lib.http.dev.torrent.decode.BitTorrentModel;
 import com.lib.http.dev.util.EncryptUtil;
 import com.yline.test.BaseTestActivity;
 import com.yline.utils.LogUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ParseActivity extends BaseTestActivity {
-    private TextView hintTextView;
+    private List<Integer> mMultiChoiceId = new ArrayList<>();
 
     public static void launcher(Context context) {
         if (null != context) {
@@ -75,7 +79,7 @@ public class ParseActivity extends BaseTestActivity {
             }
         });
 
-        addButton("测试", new View.OnClickListener() {
+        addButton("测试，字符串和16进制相互转换", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String startStr = "123456789qwertyuiop";
@@ -87,5 +91,26 @@ public class ParseActivity extends BaseTestActivity {
                 LogUtil.v(resultStr);
             }
         });
+
+        addButton("解析文件并下载", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PieceDownloadActivity.launcher(ParseActivity.this);
+            }
+        });
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
