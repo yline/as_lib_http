@@ -1,1 +1,1 @@
-include ':LibHttpDemo', ':LibHttp', ':LibHttpDev'
+include ':LibHttpDemo', ':LibHttp'
