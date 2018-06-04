@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
     defaultConfig {
         applicationId "com.lib.http.demo"
         minSdkVersion 14
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
     }
@@ -20,8 +20,9 @@ android {
 
 dependencies {
     compile project(':LibHttp')
-    compile 'com.android.support:appcompat-v7:25.1.1'
-    compile 'com.yline.lib:LibSDK:2.1.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:appcompat-v7:26.1.0'
+    compile 'com.yline.lib:LibSDK:2.1.2'
+    compile 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.9.0'
     testCompile 'junit:junit:4.12'
 }

@@ -21,7 +21,7 @@ public class MainActivity extends BaseTestActivity {
             public void onClick(View v) {
                 XHttpUtil.doGetDefault(new XHttpAdapter<VNewsSingleModel>() {
                     @Override
-                    public void onSuccess(Call call, Response response, VNewsSingleModel vNewsSingleBean) {
+                    public void onSuccess(Call call, Response response, VNewsSingleModel vNewsSingleModel) {
 
                     }
                 });
