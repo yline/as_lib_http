@@ -4,8 +4,7 @@ import android.app.Application;
 
 import com.yline.application.SDKConfig;
 import com.yline.application.SDKManager;
-import com.yline.http.OkHttpManager;
-import com.yline.http.manager.OkHttpConfig;
+import com.yline.http.OkHttpUtils;
 
 public class IApplication extends Application {
     @Override
@@ -13,6 +12,6 @@ public class IApplication extends Application {
         super.onCreate();
 
         SDKManager.init(this, new SDKConfig());
-        OkHttpManager.init(this, new OkHttpConfig());
+        OkHttpUtils.init(true);
     }
 }

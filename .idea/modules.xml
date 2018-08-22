@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/LibHttp/LibHttp.iml" filepath="$PROJECT_DIR$/LibHttp/LibHttp.iml" />
       <module fileurl="file://$PROJECT_DIR$/LibHttpDemo/LibHttpDemo.iml" filepath="$PROJECT_DIR$/LibHttpDemo/LibHttpDemo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/_LibHttp.iml" filepath="$PROJECT_DIR$/_LibHttp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/as_lib_http.iml" filepath="$PROJECT_DIR$/as_lib_http.iml" />
     </modules>
   </component>
 </project>

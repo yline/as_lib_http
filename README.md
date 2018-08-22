@@ -3,8 +3,6 @@
 
 * get方式、post传输json两种方式 进行缓存
 * 支持对象转json，json转对象
-* 支持handler处理
-* 以上都支持自定义
 
 技术交流群：[644213963](https://jq.qq.com/?_wv=1027&k=4ETdgdJ)
 个人邮箱：[957339173@qq.com](https://jq.qq.com/?_wv=1027&k=4B0yi1n)  
@@ -31,41 +29,17 @@
 ```
 
 ## 使用教程
-### 使用前提：初始化
-    XHttpConfig.getInstance().init(IApplication.this);
 
 ### 使用
-设置Util
-
-	public static void doPostDefault(WNewsMultiplexBean wNewsMultiplexBean, XHttpAdapter<VNewsMultiplexBean> adapter)
-	{
-		String httpUrl = "http://120.92.35.211/wanghong/wh/index.php/Api/ApiNews/news";
-		new YlineHttp().doPost(httpUrl, wNewsMultiplexBean, VNewsMultiplexBean.class, adapter);
-	}
 调用Util
 
-	XHttpUtil.doPostDefault(new WNewsMultiplexBean(0, 10), new XHttpAdapter<VNewsMultiplexBean>()
-	{
-		@Override
-		public void onSuccess(VNewsMultiplexBean vNewsMultiplexBean)
-		{
-		}
-	});
+	private static <T> void get(String httpUrl, Map<String, String> param, OnJsonCallback<T> callback) {
+		OkHttpUtils.get(httpUrl, param, "Cache-get", callback);
+	}
 更多使用请参照 工程中demo
 
-## 混淆
-`LibHttp`和`OkHttp3`相同
-
-    -dontwarn com.squareup.okhttp3.**
-    -keep class com.squareup.okhttp3.** { *;}
-    -dontwarn okio.**
-
 ## 版本    
-### Version 2.1.1
-> 个人使用已经较为稳定的版本  
-> 实现对象与json相互转换    
-> 实现get和post传输json 缓存   
-> 实现handler处理子线程事件 
+### Version 3.0.0
 
 
 
