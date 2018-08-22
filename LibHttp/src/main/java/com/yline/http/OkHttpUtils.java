@@ -24,8 +24,7 @@ import okhttp3.Response;
 /**
  * OKHttp封装一层，handler处理一层。具体的实现都在Adapter里面
  *
- * @author yline
- * @times 2018/8/21 -- 18:13
+ * @author yline 2018/8/21 -- 18:13
  */
 public class OkHttpUtils {
 	public static final int IO_ERROR_CODE = -100; // IO 异常

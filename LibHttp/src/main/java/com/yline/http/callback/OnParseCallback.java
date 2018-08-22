@@ -7,8 +7,7 @@ import java.lang.reflect.Type;
  * 解析具体的数据
  * 不可以是接口类型，如果是接口类型，则获取不到具体的type
  *
- * @author yline
- * @times 2018/8/22 -- 9:50
+ * @author yline 2018/8/22 -- 9:50
  */
 public interface OnParseCallback<T> {
 	/**

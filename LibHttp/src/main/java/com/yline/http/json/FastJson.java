@@ -12,8 +12,7 @@ import java.util.List;
 /**
  * Json解析，隔离层
  *
- * @author linjiang@kjtpay.com
- * @times 2018/7/26 -- 13:57
+ * @author yline 2018/7/26 -- 13:57
  */
 public class FastJson {
     /**

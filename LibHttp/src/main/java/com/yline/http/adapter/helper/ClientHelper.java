@@ -7,8 +7,7 @@ import okhttp3.OkHttpClient;
 /**
  * 默认的 Http请求 Client
  *
- * @author yline
- * @times 2018/8/21 -- 18:30
+ * @author yline 2018/8/21 -- 18:30
  */
 public class ClientHelper {
 	private static OkHttpClient okHttpClient;

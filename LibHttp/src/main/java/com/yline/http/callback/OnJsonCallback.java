@@ -6,8 +6,7 @@ import java.lang.reflect.Type;
 /**
  * 返回结构
  *
- * @author yline
- * @times 2018/8/21 -- 16:28
+ * @author yline 2018/8/21 -- 16:28
  */
 public abstract class OnJsonCallback<T> {
 	/**

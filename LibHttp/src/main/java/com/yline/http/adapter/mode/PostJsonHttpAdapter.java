@@ -21,8 +21,7 @@ import okhttp3.ResponseBody;
 /**
  * Post请求方式，提交Json
  *
- * @author yline
- * @times 2018/8/22 -- 10:01
+ * @author yline 2018/8/22 -- 10:01
  */
 public class PostJsonHttpAdapter implements OnHttpAdapter {
 	private static final MediaType JSON_TYPE = MediaType.parse("application/json; charset=UTF-8");

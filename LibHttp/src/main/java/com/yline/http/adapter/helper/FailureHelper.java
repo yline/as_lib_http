@@ -18,8 +18,7 @@ import javax.net.ssl.SSLException;
 /**
  * 默认的 异常信息处理方式
  *
- * @author yline
- * @times 2018/8/22 -- 13:05
+ * @author yline 2018/8/22 -- 13:05
  */
 public class FailureHelper {
 	/**

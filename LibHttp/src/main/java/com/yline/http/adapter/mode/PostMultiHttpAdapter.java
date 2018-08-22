@@ -20,8 +20,7 @@ import okhttp3.ResponseBody;
 /**
  * Post请求方式，提交表单
  *
- * @author yline
- * @times 2018/8/22 -- 13:07
+ * @author yline 2018/8/22 -- 13:07
  */
 public class PostMultiHttpAdapter implements OnHttpAdapter {
 	private String httpUrl;

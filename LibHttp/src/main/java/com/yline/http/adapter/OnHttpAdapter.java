@@ -12,8 +12,7 @@ import okhttp3.Response;
 /**
  * 所有支持配置的信息，都由这个类统一提供配置
  *
- * @author yline
- * @times 2018/8/21 -- 16:33
+ * @author yline 2018/8/21 -- 16:33
  */
 public interface OnHttpAdapter {
 	/**

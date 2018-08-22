@@ -5,8 +5,7 @@ import java.util.Locale;
 /**
  * 日志工具
  *
- * @author yline
- * @times 2018/8/22 -- 15:29
+ * @author yline 2018/8/22 -- 15:29
  */
 public final class LogUtil {
 	/* tag 定位  默认格式 */
