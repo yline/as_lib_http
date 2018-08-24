@@ -9,7 +9,6 @@ import com.yline.http.adapter.mode.PostJsonHttpAdapter;
 import com.yline.http.adapter.mode.PostMultiHttpAdapter;
 import com.yline.http.callback.OnJsonCallback;
 import com.yline.http.callback.OnParseCallback;
-import com.yline.http.util.LogUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

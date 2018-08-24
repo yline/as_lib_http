@@ -6,7 +6,7 @@ import android.net.NetworkInfo;
 
 import com.lib.http.demo.cache.impl.CacheManager;
 import com.yline.application.SDKManager;
-import com.yline.http.util.LogUtil;
+import com.yline.utils.LogUtil;
 
 import java.io.IOException;
 import java.util.Locale;

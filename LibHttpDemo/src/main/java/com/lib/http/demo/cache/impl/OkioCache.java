@@ -1,9 +1,8 @@
 package com.lib.http.demo.cache.impl;
 
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.yline.http.util.LogUtil;
+import com.yline.utils.LogUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

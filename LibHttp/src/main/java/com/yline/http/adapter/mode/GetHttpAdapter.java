@@ -1,5 +1,7 @@
 package com.yline.http.adapter.mode;
 
+import android.text.TextUtils;
+
 import com.yline.http.adapter.OnHttpAdapter;
 import com.yline.http.adapter.helper.ClientHelper;
 import com.yline.http.adapter.helper.FailureHelper;
@@ -66,7 +68,7 @@ public class GetHttpAdapter implements OnHttpAdapter {
 		Request.Builder requestBuilder = new Request.Builder();
 		
 		// 添加请求链接
-		String finalHttpUrl = String.format("%s?%s", httpUrl, genParamUrl(paramMap));
+		String finalHttpUrl = genParamUrl(httpUrl, paramMap);
 		requestBuilder.url(finalHttpUrl);
 		
 		requestBuilder.tag(tag);
@@ -80,20 +82,21 @@ public class GetHttpAdapter implements OnHttpAdapter {
 	 * @param param 请求参数
 	 * @return 拼凑的字符串
 	 */
-	private static String genParamUrl(Map<String, String> param) {
+	private static String genParamUrl(String httpUrl, Map<String, String> param) {
 		if (null == param) {
-			return "";
+			return httpUrl;
 		} else {
-			StringBuilder stringBuilder = new StringBuilder();
+			StringBuilder stringBuilder = new StringBuilder(httpUrl);
 			boolean isFirst = true;
 			for (String key : param.keySet()) {
 				if (isFirst) {
 					isFirst = false;
+					stringBuilder.append('?');
 				} else {
-					stringBuilder.append("&");
+					stringBuilder.append('&');
 				}
 				stringBuilder.append(key);
-				stringBuilder.append("=");
+				stringBuilder.append('=');
 				stringBuilder.append(param.get(key));
 			}
 			return stringBuilder.toString();

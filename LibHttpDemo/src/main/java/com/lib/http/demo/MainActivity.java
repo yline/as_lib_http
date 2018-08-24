@@ -10,8 +10,8 @@ import com.lib.http.demo.normal.model.LoginModel;
 import com.lib.http.demo.cache.CacheHttpManager;
 import com.yline.application.SDKManager;
 import com.yline.http.callback.OnJsonCallback;
-import com.yline.http.util.LogUtil;
 import com.yline.test.BaseTestActivity;
+import com.yline.utils.LogUtil;
 
 public class MainActivity extends BaseTestActivity {
 	@Override

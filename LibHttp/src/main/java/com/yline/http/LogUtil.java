@@ -1,13 +1,14 @@
-package com.yline.http.util;
+package com.yline.http;
 
 import java.util.Locale;
 
 /**
  * 日志工具
+ * 不给外界使用，所以其他类使用通过 OkHttpUtils包装一次
  *
  * @author yline 2018/8/22 -- 15:29
  */
-public final class LogUtil {
+final class LogUtil {
 	/* tag 定位  默认格式 */
 	private static final String TAG_DEFAULT_LOCATION = "xxx->%s.%s(L:%d): ";
 	
@@ -30,25 +31,6 @@ public final class LogUtil {
 	public static void v(String content) {
 		if (isUtilLog) {
 			android.util.Log.v(generateTag(LOG_LOCATION_NOW), String.format(MSG_DEFAULT, content));
-		}
-	}
-	
-	/**
-	 * @param content 内容
-	 */
-	public static void e(String content) {
-		if (isUtilLog) {
-			android.util.Log.e(generateTag(LOG_LOCATION_NOW), String.format(MSG_DEFAULT, content));
-		}
-	}
-	
-	/**
-	 * @param content 内容
-	 * @param tr      错误信息
-	 */
-	public static void e(String content, Throwable tr) {
-		if (isUtilLog) {
-			android.util.Log.e(generateTag(LOG_LOCATION_NOW), String.format(MSG_DEFAULT, content), tr);
 		}
 	}
 	

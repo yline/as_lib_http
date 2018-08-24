@@ -1,7 +1,7 @@
 package com.lib.http.demo.cache.impl;
 
 import com.yline.application.SDKManager;
-import com.yline.http.util.LogUtil;
+import com.yline.utils.LogUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
