@@ -5,6 +5,8 @@ import android.os.Build;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.util.TypeUtils;
 import com.lib.http.demo.normal.model.PostBaseModel;
 import com.yline.http.adapter.OnHttpAdapter;
 import com.yline.http.adapter.helper.ClientHelper;
@@ -71,18 +73,28 @@ public class KjtHttpAdapter implements OnHttpAdapter {
 			if (null != responseBody) {
 				try {
 					String bodyString = responseBody.string();
-					PostBaseModel<JSON> baseModel = FastJson.toClass(bodyString, new TypeReference<PostBaseModel<JSON>>() {
+					PostBaseModel<Object> baseModel = FastJson.toClass(bodyString, new TypeReference<PostBaseModel<Object>>() {
 					}.getType());
 					
+					// 由于 具体数据，可能不符合JSON规范，因此进行了适配；具体规则如下（一般传Void和String表明无数据）
+					// T == Void时，对应关系："" --> null ; {} --> java.lang.Void@地址 ; [] --> 异常; "123" --> null
+					// T == String时，对应关系："" --> "" ; {} --> "{}" ; [] --> "[]"; "123" --> "123"
+					// T == Integer时，对应关系："" --> null ; {} --> 异常; [] --> 异常; "123" --> 123
+					// 公共集合，解析
 					int code = baseModel.getCode();
 					if (code == 200) {
-						JSON jsonData = baseModel.getData();
-						// 最后一层转换，若数据为空，则不算错误，直接返回null
-						if (null != jsonData) {
-							T data = jsonData.toJavaObject(type);
-							callback.onResponseSuccess(data);
+						Object obj = baseModel.getData();
+						if (obj instanceof JSON) { // 默认解析方式
+							JSON jsonModel = (JSON) obj;
+							T model = jsonModel.toJavaObject(type);
+							callback.onResponseSuccess(model);
 						} else {
-							callback.onResponseSuccess(null);
+							try {
+								T t = TypeUtils.cast(obj, type, ParserConfig.getGlobalInstance());
+								callback.onResponseSuccess(t);
+							} catch (Exception ex) {
+								callback.onResponseSuccess(null);
+							}
 						}
 					} else {
 						IOException exception = new IOException("service error");
