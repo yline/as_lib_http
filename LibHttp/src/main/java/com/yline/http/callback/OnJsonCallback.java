@@ -15,7 +15,7 @@ public abstract class OnJsonCallback<T> {
 	 * @param code 服务器的code
 	 * @param msg  服务器返回的异常信息（可能为null）
 	 */
-	public abstract void onFailure(int code, String msg);
+	public abstract void onFailure(String code, String msg);
 	
 	/**
 	 * 请求成功，数据返回

@@ -51,5 +51,5 @@ public interface OnHttpAdapter {
 	 * @param msg  错误信息{可能为null}
 	 * @return 最终呈现的字符串
 	 */
-	String handleFailureException(final Exception ex, final int code, final String msg);
+	String handleFailureException(final Exception ex, final String code, final String msg);
 }

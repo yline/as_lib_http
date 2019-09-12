@@ -59,12 +59,12 @@ public class PostMultiHttpAdapter implements OnHttpAdapter {
 				callback.onResponseError(new IOException("response body is null"), OkHttpUtils.HANDLE_ERROR_CODE, null);
 			}
 		} else {
-			callback.onResponseError(new IOException("response code error"), response.code(), null);
+			callback.onResponseError(new IOException("response code error"), String.valueOf(response.code()), null);
 		}
 	}
 	
 	@Override
-	public String handleFailureException(Exception ex, int code, String msg) {
+	public String handleFailureException(Exception ex, String code, String msg) {
 		return FailureHelper.failureException(ex, code, msg);
 	}
 	

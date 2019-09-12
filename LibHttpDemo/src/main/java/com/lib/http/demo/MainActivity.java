@@ -24,7 +24,7 @@ public class MainActivity extends BaseTestActivity {
 				
 				KjtHttpManager.loginNormal(phone, password, new OnJsonCallback<LoginModel>() {
 					@Override
-					public void onFailure(int code, String msg) {
+					public void onFailure(String code, String msg) {
 						// todo
 					}
 					
@@ -42,7 +42,7 @@ public class MainActivity extends BaseTestActivity {
 			public void onClick(View v) {
 				CacheHttpManager.doGetDefault(new OnJsonCallback<NewsSingleModel>() {
 					@Override
-					public void onFailure(int code, String msg) {
+					public void onFailure(String code, String msg) {
 						// todo
 					}
 					
@@ -59,7 +59,7 @@ public class MainActivity extends BaseTestActivity {
 			public void onClick(View v) {
 				CacheHttpManager.doPostDefault(0, 10, new OnJsonCallback<NewsMultiplexModel>() {
 					@Override
-					public void onFailure(int code, String msg) {
+					public void onFailure(String code, String msg) {
 						// todo
 					}
 					
@@ -76,7 +76,7 @@ public class MainActivity extends BaseTestActivity {
 			public void onClick(View v) {
 				CacheHttpManager.doGetNetPrior(new OnJsonCallback<NewsSingleModel>() {
 					@Override
-					public void onFailure(int code, String msg) {
+					public void onFailure(String code, String msg) {
 						// todo
 					}
 					
@@ -93,7 +93,7 @@ public class MainActivity extends BaseTestActivity {
 			public void onClick(View v) {
 				CacheHttpManager.doPostNetPrior(0, 10, new OnJsonCallback<NewsMultiplexModel>() {
 					@Override
-					public void onFailure(int code, String msg) {
+					public void onFailure(String code, String msg) {
 						// todo
 					}
 					

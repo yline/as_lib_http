@@ -10,6 +10,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 import com.lib.http.demo.normal.model.PostBaseModel;
 import com.yline.http.adapter.OnHttpAdapter;
 import com.yline.http.adapter.helper.ClientHelper;
+import com.yline.http.adapter.helper.FailureHelper;
 import com.yline.http.callback.OnParseCallback;
 import com.yline.http.json.FastJson;
 import com.yline.http.OkHttpUtils;
@@ -98,7 +99,7 @@ public class KjtHttpAdapter implements OnHttpAdapter {
 						}
 					} else {
 						IOException exception = new IOException("service error");
-						callback.onResponseError(exception, code, baseModel.getMsg());
+						callback.onResponseError(exception, String.valueOf(code), baseModel.getMsg());
 					}
 				} catch (IOException ex) {
 					callback.onResponseError(ex, OkHttpUtils.HANDLE_ERROR_CODE, null);
@@ -107,13 +108,13 @@ public class KjtHttpAdapter implements OnHttpAdapter {
 				callback.onResponseError(new IOException("response body is null"), OkHttpUtils.HANDLE_ERROR_CODE, null);
 			}
 		} else {
-			callback.onResponseError(new IOException("response code error"), response.code(), null);
+			callback.onResponseError(new IOException("response code error"), String.valueOf(response.code()), null);
 		}
 	}
 	
 	@Override
-	public String handleFailureException(Exception ex, int code, String msg) {
-		return failureException(ex, code, msg);
+	public String handleFailureException(Exception ex, String code, String msg) {
+		return FailureHelper.failureException(ex, code, msg);
 	}
 	
 	/**
@@ -156,34 +157,5 @@ public class KjtHttpAdapter implements OnHttpAdapter {
 			requestMap.putAll(params);
 		}
 		return FastJson.toString(requestMap);
-	}
-	
-	/**
-	 * 异常信息处理（沿袭之前的方案）
-	 *
-	 * @param ex   异常
-	 * @param code 错误码 -100{IO异常}，-200{Json解析异常}，其它{服务器返回异常}
-	 * @param msg  错误信息
-	 */
-	private static String failureException(final Exception ex, int code, String msg) {
-		// 后台返回的异常信息
-		if (code != OkHttpUtils.IO_ERROR_CODE && code != OkHttpUtils.HANDLE_ERROR_CODE) {
-			return msg;
-		}
-		
-		// 本地设置的异常信息
-		if (ex instanceof TimeoutException || ex instanceof SocketTimeoutException) {
-			return "连接超时";
-		} else if (ex instanceof JSONException || ex instanceof XmlPullParserException || ex instanceof ParseException) {
-			return "数据解析异常";
-		} else if (ex instanceof NetworkErrorException) {
-			return "网络异常";
-		} else if (ex instanceof SSLException) {
-			return "证书出错";
-		} else if (ex instanceof ConnectException || ex instanceof UnknownHostException) {
-			return "无网络,请重试!";
-		} else {
-			return "系统异常";
-		}
 	}
 }

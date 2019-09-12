@@ -24,5 +24,5 @@ public interface OnParseCallback<T> {
 	 * @param code 错误编号
 	 * @param msg  服务器返回的错误信息
 	 */
-	void onResponseError(Exception ex, int code, String msg);
+	void onResponseError(Exception ex, String code, String msg);
 }

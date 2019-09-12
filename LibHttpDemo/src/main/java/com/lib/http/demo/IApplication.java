@@ -12,6 +12,6 @@ public class IApplication extends Application {
         super.onCreate();
 
         SDKManager.init(this, new SDKConfig());
-        OkHttpUtils.init(true);
+        OkHttpUtils.setIsDebug(true);
     }
 }
